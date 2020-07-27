@@ -22,7 +22,8 @@ targetting GEMMA2/gemmalib to be a faster and more flexible tool.
 
 NOTICE: this software is under active development. YMMV.
 
-For more information contact Pjotr Prins.
+For more information contact Pjotr Prins.  Pjotr is blogging about the
+project [[https://thebird.nl/blog/work/rotate.html][here]].
 
 * INSTALL
 

@@ -4,4 +4,9 @@
 
 GNU Guix is the software manager for the GNU project. It allows
 for reproducible deployment and full control over the dependency
-graph. We use it for development.
+graph. We use it for development. Current install is
+
+#+BEGIN_SRC sh
+~/opt/guix/bin/guix package -i python python-toolz -p ~/opt/gemmalib
+. ~/opt/gemmalib/etc/profile
+#+END_SRC
