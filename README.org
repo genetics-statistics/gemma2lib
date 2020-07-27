@@ -1,0 +1,33 @@
+* GEMMA2/gemmalib
+
+Here we create a new version of GEMMA that acts like a toolbox
+for GWA, mapping and inference.
+
+GEMMA: Genome-wide efficient 'exact' mixed-model analysis for
+association studies that correct that accounts for population
+stratification and sample structure.
+
+GEMMA continues to be a popular tool.  In this source code repository
+we work on the next generation of GEMMA and LMM related software with
+the goal of creating a library of functionality which can be used from
+languages such as R and Python.
+
+GEMMA2/gemmalib is therefore meant to be a library written in Rust, C
+and D. The front-end is initially written in Python. R and Packet FFIs
+may follow.
+
+On our http://genenetwork.org/ systems we run GEMMA every day.  As
+part of a Systems Genetics and Precision Medicine Project we are
+targetting GEMMA2/gemmalib to be a faster and more flexible tool.
+
+NOTICE: this software is under active development. YMMV.
+
+For more information contact Pjotr Prins.
+
+* INSTALL
+
+See [[./INSTALL.org]].
+
+* LICENSE
+
+GEMMA2/gemmalib is published under the GPLv3.
