@@ -1,4 +1,4 @@
-* GEMMA2/gemmalib
+* GEMMA2/lib
 
 Here we create a new version of GEMMA that acts like a toolbox
 for GWA, mapping and inference.
@@ -12,13 +12,13 @@ we work on the next generation of GEMMA and LMM related software with
 the goal of creating a library of functionality which can be used from
 languages such as R and Python.
 
-GEMMA2/gemmalib is therefore meant to be a library written in Rust, C
+GEMMA2/lib is therefore meant to be a library written in Rust, C
 and D. The front-end is initially written in Python. R and Packet FFIs
 may follow.
 
 On our http://genenetwork.org/ systems we run GEMMA every day.  As
 part of a Systems Genetics and Precision Medicine Project we are
-targetting GEMMA2/gemmalib to be a faster and more flexible tool.
+targetting GEMMA2/lib to be a faster and more flexible tool.
 
 NOTICE: this software is under active development. YMMV.
 
@@ -31,4 +31,4 @@ See [[./INSTALL.org]].
 
 * LICENSE
 
-GEMMA2/gemmalib is published under the GPLv3.
+GEMMA2/lib is published under the GPLv3.

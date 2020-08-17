@@ -1,0 +1,2 @@
+# Typical Guix container invocation
+~/opt/guix/bin/guix environment -C guix --ad-hoc python python-click python-toolz which vim
