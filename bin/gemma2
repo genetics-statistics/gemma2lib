@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
+#
+# This is the main gemma2 starting point. It is parses command line
+# arguments and hands them off to other modules.
 
-import sys
-import pprint
 import click # command line parsing
+import pprint
+import sys
 
+from itertools import chain
 from os.path import dirname
 from toolz.functoolz import pipe
-from itertools import chain
+from subprocess import run,CompletedProcess
 
 BASEDIR=str.strip(pipe(__file__,dirname,dirname)) or "."
 VERSION=open(BASEDIR+"/VERSION").read()
@@ -27,29 +31,43 @@ second = ["gwa"]
 
 split_on = ["%", "'=>'"]
 
-def gemma1():
+def gemma1_pass(args):
     """At this stage a simple pass-through"""
-    click.echo("** Call gemma1")
+    args1 = list(args)
+    args1.insert(0,"gemma")
+    cmd = " ".join(args)
+    click.echo("- Gemma1 compatibility mode calling:\ngemma "+cmd)
+    print(args1)
+    run(args1)
 
 @click.group(invoke_without_command=True)
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
 def gemma2(ctx,debug):
-    if not ctx.invoked_subcommand:
-        gemma1()
+    # if not ctx.invoked_subcommand:
+    #     gemma1_pass(ctx)
     ctx.ensure_object(dict)
     ctx.obj['DEBUG'] = debug
     click.echo('1 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
 
+@gemma2.command(context_settings=dict(
+    ignore_unknown_options=True,
+))
+# @click.pass_context
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+def gemma1(args):
+    cmdline = list(args)
+    gemma1_pass(args)
+
 @gemma2.command()
 @click.pass_context
 def filter(ctx):
-    click.echo('** Filter data')
+    click.echo('- Filter data')
 
 @gemma2.command()
 @click.pass_context
 def grm(ctx):
-    click.echo('** Kinship/Genetic Relationship Matrix (GRM) command')
+    click.echo('- Kinship/Genetic Relationship Matrix (GRM) command')
     click.echo('2 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
     if second:
         gemma2(second)
