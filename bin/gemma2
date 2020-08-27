@@ -7,6 +7,7 @@ import click # command line parsing
 import pprint
 import sys
 
+from click import echo
 from itertools import chain
 from os.path import dirname
 from toolz.functoolz import pipe
@@ -15,14 +16,7 @@ from subprocess import run,CompletedProcess
 BASEDIR=str.strip(pipe(__file__,dirname,dirname)) or "."
 VERSION=open(BASEDIR+"/VERSION").read()
 
-print("GEMMA2",VERSION,"by Pjotr Prins, Xiang Zhou and others")
-
-print("""GEMMA2 is a new generation GEMMA that aims to incorporate
-state-of-the-art GWA analysis.
-
-GEMMA2 has its own command line parameters. Other parameters are
-passed on to GEMMA (version 1).
-""")
+print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analysis by Pjotr Prins, Xiang Zhou and others")
 
 second = ["gwa"]
 
@@ -40,31 +34,38 @@ def gemma1_pass(args):
     print(args1)
     run(args1)
 
+# Grouping multi commands, see https://click.palletsprojects.com/en/7.x/commands/
 @click.group(invoke_without_command=True)
 @click.option('--debug/--no-debug', default=False)
+@click.option('--verbose', type=int, default=1, show_default=True, count=True)
+@click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False))
+# @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,debug):
-    # if not ctx.invoked_subcommand:
-    #     gemma1_pass(ctx)
+def gemma2(ctx,debug,verbose,log):
+    echo("HERE")
+    if not ctx.invoked_subcommand:
+        echo("Passing on to gemma1!!")
+        # gemma1_pass(list(args))
     ctx.ensure_object(dict)
     ctx.obj['DEBUG'] = debug
     click.echo('1 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
 
-@gemma2.command(context_settings=dict(
-    ignore_unknown_options=True,
-))
-# @click.pass_context
+# The gemma1 command does a simple pass through without command line
+# checking! This is for quick testing only as it finds the gemma
+# binary
+@gemma2.command(context_settings=dict(ignore_unknown_options=True),
+                help="Simple raw GEMMAv1 pass through mode")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def gemma1(args):
     cmdline = list(args)
     gemma1_pass(args)
 
-@gemma2.command()
+@gemma2.command(help="Filtering commands")
 @click.pass_context
 def filter(ctx):
     click.echo('- Filter data')
 
-@gemma2.command()
+@gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
 @click.pass_context
 def grm(ctx):
     click.echo('- Kinship/Genetic Relationship Matrix (GRM) command')
@@ -72,7 +73,7 @@ def grm(ctx):
     if second:
         gemma2(second)
 
-@gemma2.command()
+@gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--port', default=8000)
 @click.pass_context
 def gwa(ctx,port):
@@ -80,6 +81,7 @@ def gwa(ctx,port):
     click.echo('3 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
     click.echo(port)
 
+gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)
 gemma2.add_command(gwa)

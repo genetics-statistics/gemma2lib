@@ -7,10 +7,9 @@ GEMMA: Genome-wide efficient 'exact' mixed-model analysis for
 association studies that correct that accounts for population
 stratification and sample structure.
 
-GEMMA continues to be a popular tool.  In this source code repository
-we work on the next generation of GEMMA and LMM related software with
-the goal of creating a library of functionality which can be used from
-languages such as R and Python.
+In this source code repository we work on the next generation of GEMMA
+and LMM related software with the goal of creating a library of
+functionality which can be used from languages such as R and Python.
 
 GEMMA2/lib is therefore meant to be a library written in Rust, C
 and D. The front-end is initially written in Python. R and Packet FFIs
@@ -22,13 +21,29 @@ targetting GEMMA2/lib to be a faster and more flexible tool.
 
 NOTICE: this software is under active development. YMMV.
 
-For more information contact Pjotr Prins.  Pjotr is blogging about the
-project [[https://thebird.nl/blog/work/rotate.html][here]].
+For more information contact Pjotr Prins. A BLOG about the project can
+be found [[https://thebird.nl/blog/work/rotate.html][here]].
 
 * INSTALL
 
 See [[./INSTALL.org]].
 
+* RUN GEMMA2
+
+GEMMA is called from the command line using the ~gemma2~ command. Try
+
+#+BEGIN_SRC sh
+gemma2 --help
+#+END_SRC
+
+for a list of commands. GEMMA2 differs from GEMMA1 but adds a
+compatibility layer interpreting GEMMA1 switches. To do a pass-through
+to GEMMA1 simply use the gemma1 command:
+
+#+BEGIN_SRC sh
+gemma2 gemma1 [old switches]
+#+END_SRC
+
 * LICENSE
 
-GEMMA2/lib is published under the GPLv3.
+GEMMA and GEMMA2/lib are published under the GPLv3 LICENSE.
