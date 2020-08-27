@@ -12,12 +12,17 @@ from itertools import chain
 from os.path import dirname
 from toolz.functoolz import pipe
 from subprocess import run,CompletedProcess
+import logging
 
 BASEDIR=str.strip(pipe(__file__,dirname,dirname)) or "."
 VERSION=open(BASEDIR+"/VERSION").read()
 
 print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analysis by Pjotr Prins, Xiang Zhou and others")
 
+sys.path.append(BASEDIR)
+import gemma2 # you may need to add source to PYTHONPATH
+
+options = {}
 second = ["gwa"]
 
 # pp = pprint.PrettyPrinter(indent=4)
@@ -30,25 +35,43 @@ def gemma1_pass(args):
     args1 = list(args)
     args1.insert(0,"gemma")
     cmd = " ".join(args)
-    click.echo("- Gemma1 compatibility mode calling:\ngemma "+cmd)
-    print(args1)
+    logging.warning("Gemma1 -- should read the docs -- compatibility mode calling:\ngemma "+cmd)
+    # print(args1)
     run(args1)
 
 # Grouping multi commands, see https://click.palletsprojects.com/en/7.x/commands/
 @click.group(invoke_without_command=True)
 @click.option('--debug/--no-debug', default=False)
-@click.option('--verbose', type=int, default=1, show_default=True, count=True)
+@click.option('-v','--verbose', type=int, default=1, show_default=True, count=True)
 @click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False))
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def gemma2(ctx,debug,verbose,log):
-    echo("HERE")
-    if not ctx.invoked_subcommand:
-        echo("Passing on to gemma1!!")
-        # gemma1_pass(list(args))
+    # if not ctx.invoked_subcommand:
+    #   echo("Passing on to gemma1!!")
+    #   gemma1_pass(list(args))
     ctx.ensure_object(dict)
+    options['debug'] = debug
     ctx.obj['DEBUG'] = debug
-    click.echo('1 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
+
+    options['verbose'] = verbose
+    ctx.obj['VERBOSE'] = verbose
+
+    if not log:
+        log = 'WARNING'
+    options['log'] = log
+    ctx.obj['LOG'] = log
+    if log:
+        logger = { 'DEBUG': logging.DEBUG,
+                   'INFO': logging.INFO,
+                   'WARNING': logging.WARNING,
+                   'ERROR': logging.ERROR
+        }
+        logging.basicConfig(level=logger[log])
+    logging.warning("TEST")
+
+    if verbose:
+        echo(options)
 
 # The gemma1 command does a simple pass through without command line
 # checking! This is for quick testing only as it finds the gemma
@@ -63,27 +86,30 @@ def gemma1(args):
 @gemma2.command(help="Filtering commands")
 @click.pass_context
 def filter(ctx):
-    click.echo('- Filter data')
+    echo('- Filter data')
 
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
 @click.pass_context
 def grm(ctx):
-    click.echo('- Kinship/Genetic Relationship Matrix (GRM) command')
-    click.echo('2 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
+    echo('- Kinship/Genetic Relationship Matrix (GRM) command')
+    echo('2 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
     if second:
         gemma2(second)
 
 @gemma2.command(help="Compute genome-wide association (GWA)")
-@click.option('--port', default=8000)
+@click.option('--iterations', default=1_000)
 @click.pass_context
-def gwa(ctx,port):
-    click.echo('** Genome-wide Association (GWA)')
-    click.echo('3 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
-    click.echo(port)
+def lmm(ctx,iterations):
+    echo('** Genome-wide Association (GWA)')
+    echo('3 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
+    echo("iterations is %s" % (iterations))
+    echo("verbose is %s" % (ctx.obj['VERBOSE']))
+    echo("log is %s" % (ctx.obj['LOG']))
+    logging.warning("TEST")
 
 gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)
-gemma2.add_command(gwa)
+gemma2.add_command(lmm)
 
 gemma2()

@@ -1,3 +1,18 @@
+#+TITLE: GEMMA2: Genome-wide efficient 'exact' mixed-model analysis
+
+* Table of Contents                                                     :TOC:
+ - [[#gemma2lib][GEMMA2/lib]]
+ - [[#install][INSTALL]]
+ - [[#running-gemma2][RUNNING GEMMA2]]
+   - [[#gemma-version-1-pass-through][gemma version 1 pass through]]
+   - [[#verbosity-and-logging][Verbosity and logging]]
+ - [[#commands][Commands]]
+   - [[#convert-command][convert command]]
+   - [[#filter-command][filter command]]
+   - [[#grm-command][grm command]]
+   - [[#lmm-command][lmm command]]
+ - [[#license][LICENSE]]
+
 * GEMMA2/lib
 
 Here we create a new version of GEMMA that acts like a toolbox
@@ -28,7 +43,7 @@ be found [[https://thebird.nl/blog/work/rotate.html][here]].
 
 See [[./INSTALL.org]].
 
-* RUN GEMMA2
+* RUNNING GEMMA2
 
 GEMMA is called from the command line using the ~gemma2~ command. Try
 
@@ -36,13 +51,54 @@ GEMMA is called from the command line using the ~gemma2~ command. Try
 gemma2 --help
 #+END_SRC
 
-for a list of commands. GEMMA2 differs from GEMMA1 but adds a
+for a list of commands.
+
+** gemma version 1 pass through
+
+GEMMA2 differs from GEMMA1 but adds a
 compatibility layer interpreting GEMMA1 switches. To do a pass-through
 to GEMMA1 simply use the gemma1 command:
 
 #+BEGIN_SRC sh
 gemma2 gemma1 [old switches]
 #+END_SRC
+
+To try the examples:
+
+#+BEGIN_SRC sh
+# compute Kinship matrix
+gemma2 gemma1 -g ./example/mouse_hs1940.geno.txt.gz -p ./example/mouse_hs1940.pheno.txt \
+    -gk -o mouse_hs1940
+# run univariate LMM
+gemma2 gemma1 -g ./example/mouse_hs1940.geno.txt.gz \
+    -p ./example/mouse_hs1940.pheno.txt -n 1 -a ./example/mouse_hs1940.anno.txt \
+    -k ./output/mouse_hs1940.cXX.txt -lmm -o mouse_hs1940_CD8_lmm
+#+END_SRC
+
+
+** Verbosity and logging
+
+~gemma2~ is always invoked with a command (e.g. ~filter~, ~grm~ and ~lmm~)
+followed by specific switches. Before command a number of generic
+information switches can be used
+
+#+BEGIN_SRC sh
+gemma2 [-vv] [--log INFO] [--debug] command [specific switches]
+#+END_SRC
+
+Where repeated ~-v~ switches increase verbosity. The ~--log~ switch
+shows the log level (DEBUG|INFO|WARNING|ERROR) which is set to WARNING
+by default. The ~--debug~ switch puts ~gemma2~ in debug mode.
+
+* Commands
+
+** convert command
+
+** filter command
+
+** grm command
+
+** lmm command
 
 * LICENSE
 
