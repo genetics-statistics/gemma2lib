@@ -7,7 +7,7 @@
    - [[#gemma-version-1-pass-through][gemma version 1 pass through]]
    - [[#verbosity-and-logging][Verbosity and logging]]
  - [[#commands][Commands]]
-   - [[#convert-command][convert command]]
+   - [[#convert-command][~convert~ command]]
    - [[#filter-command][filter command]]
    - [[#grm-command][grm command]]
    - [[#lmm-command][lmm command]]
@@ -75,6 +75,8 @@ gemma2 gemma1 -g ./example/mouse_hs1940.geno.txt.gz \
     -k ./output/mouse_hs1940.cXX.txt -lmm -o mouse_hs1940_CD8_lmm
 #+END_SRC
 
+You can set the gemma1 binary with the --bin switch or GEMMA1_BIN
+environment variable.
 
 ** Verbosity and logging
 
@@ -92,7 +94,12 @@ by default. The ~--debug~ switch puts ~gemma2~ in debug mode.
 
 * Commands
 
-** convert command
+** ~convert~ command
+
+The ~convert~ command can convert from plink and BIMBAM formats to
+[[http://kbroman.org/qtl2][R/qtl2 format]]. GEMMA2, unlike GEMMA1, uses a R/qtl2 based (from now on
+GEMMA2) format where genotypes and phenotypes are stored in a 'tidy'
+format and metadata is represented in YAML/JSON.
 
 ** filter command
 

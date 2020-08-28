@@ -30,12 +30,13 @@ second = ["gwa"]
 
 split_on = ["%", "'=>'"]
 
-def gemma1_pass(args):
+def gemma1_pass(bin,args):
     """At this stage a simple pass-through"""
     args1 = list(args)
-    args1.insert(0,"gemma")
-    cmd = " ".join(args)
-    logging.warning("Gemma1 -- should read the docs -- compatibility mode calling:\ngemma "+cmd)
+    # locate gemma
+    args1.insert(0,bin)
+    cmd = " ".join(args1)
+    logging.warning("Gemma1 -- should read the docs -- compatibility mode calling:\n"+cmd)
     # print(args1)
     run(args1)
 
@@ -68,7 +69,6 @@ def gemma2(ctx,debug,verbose,log):
                    'ERROR': logging.ERROR
         }
         logging.basicConfig(level=logger[log])
-    logging.warning("TEST")
 
     if verbose:
         echo(options)
@@ -78,10 +78,19 @@ def gemma2(ctx,debug,verbose,log):
 # binary
 @gemma2.command(context_settings=dict(ignore_unknown_options=True),
                 help="Simple raw GEMMAv1 pass through mode")
+# @click.argument('bin', envvar='GEMMA1_BIN', type=click.File('r'), default="gemma")
+@click.option('--bin', type=str, default="gemma", envvar='GEMMA1_BIN', show_default=True, help="Path or binary name pointing to GEMMAv1 (alternatively set GEMMA1_BIN)")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def gemma1(args):
+def gemma1(bin,args):
     cmdline = list(args)
-    gemma1_pass(args)
+    gemma1_pass(bin,args)
+
+@gemma2.command(help="Convert from PLINK and BIMBAM to GEMMA2 format")
+# @click.argument
+#  -bfile    [prefix]        specify input PLINK binary ped file prefix.
+#           requires: *.fam, *.bim and *.bed files
+def convert():
+    pass
 
 @gemma2.command(help="Filtering commands")
 @click.pass_context
@@ -105,8 +114,8 @@ def lmm(ctx,iterations):
     echo("iterations is %s" % (iterations))
     echo("verbose is %s" % (ctx.obj['VERBOSE']))
     echo("log is %s" % (ctx.obj['LOG']))
-    logging.warning("TEST")
 
+gemma2.add_command(convert)
 gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)
