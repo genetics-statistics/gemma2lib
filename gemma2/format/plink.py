@@ -39,8 +39,10 @@ def convert_plink(path: str, options: SimpleNamespace):
     assert phenos == phenos2, "Number of phenotypes not matching in bim and fam files"
     if options.debug or options.verbose>2:
         memory_usage()
+
+    basefn = options.outdir+"/"+basename(path)
     # Writing genotype file
-    genofn = basename(path)+"_geno.tsv"
+    genofn = basefn+"_geno.tsv"
     logging.info(f"Writing geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
     with open(genofn, "w") as f:
@@ -50,5 +52,26 @@ def convert_plink(path: str, options: SimpleNamespace):
         for j in range(markers):
             markername = bim.snp[j]
             f.write(f"\n{markername}")
-            for i in range(inds):
-                f.write(f"\t{translate[m[j,i]]}")
+            # for i in range(inds):
+            #     f.write(f"\t{translate[m[j,i]]}")
+
+    # Write control file last
+    import json
+    control = {
+        "description": basename(path),
+        "crosstype": "hs",
+        "individuals": inds,
+        "markers": markers,
+        "phenotypes": phenos,
+        "geno": "mouse_hs1940_geno.tab",
+        "alleles": ["A", "B", "H"],
+        "genotypes": {
+          "A": 1,
+          "H": 2,
+          "B": 3
+        },
+        "geno_transposed": True,
+    }
+    controlfn = basefn+".json"
+    with open(controlfn, 'w') as cf:
+        json.dump(control, cf, indent=4)
