@@ -103,7 +103,7 @@ format and metadata is represented in YAML/JSON.
 
 If you want a quick preview use the ~--debug~ switch:
 
-: gemma2 convert --debug --plink ./example/mouse_hs1940
+: gemma2 -vv --log INFO --debug convert --plink example/mouse_hs1940
 
 ** filter command
 

@@ -44,6 +44,8 @@ def gemma1_pass(bin,args):
 # Grouping multi commands, see https://click.palletsprojects.com/en/7.x/commands/
 # @click.group(invoke_without_command=True)
 @click.group()
+@click.option('--outdir', type=str, default=".", show_default=True,
+              help="Specify output directory path")
 @click.option('--validate/--no-validate', default=False, show_default=True,
               help="Validate input and output")
 @click.option('--debug/--no-debug', default=False, show_default=True,
@@ -57,7 +59,7 @@ def gemma1_pass(bin,args):
 )
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,debug,verbose,validate,log):
+def gemma2(ctx,outdir,debug,verbose,validate,log):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
@@ -68,6 +70,7 @@ def gemma2(ctx,debug,verbose,validate,log):
     opts['verbose'] = verbose
     opts['validate'] = validate
     opts['log'] = log
+    opts['outdir'] = outdir
     if log:
         logger = { 'DEBUG': logging.DEBUG,
                    'INFO': logging.INFO,
@@ -78,7 +81,7 @@ def gemma2(ctx,debug,verbose,validate,log):
 
     ctx.obj['OPTIONS'] = SimpleNamespace(**opts)
     if verbose:
-        echo(options)
+        echo(opts)
 
 # The gemma1 command does a simple pass through without command line
 # checking! This is for quick testing only as it finds the gemma

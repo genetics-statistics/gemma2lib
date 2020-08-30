@@ -2,3 +2,5 @@
 .Rhistory
 geno.txt
 output
+*.tab
+*.gz
