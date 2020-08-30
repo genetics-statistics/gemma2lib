@@ -101,6 +101,10 @@ The ~convert~ command can convert from plink and BIMBAM formats to
 GEMMA2) format where genotypes and phenotypes are stored in a 'tidy'
 format and metadata is represented in YAML/JSON.
 
+If you want a quick preview use the ~--debug~ switch:
+
+: gemma2 convert --debug --plink ./example/mouse_hs1940
+
 ** filter command
 
 ** grm command
