@@ -4,15 +4,16 @@
 # arguments and hands them off to other modules.
 
 import click # command line parsing
+import logging
 import pprint
 import sys
 
 from click import echo
 from itertools import chain
 from os.path import dirname
-from toolz.functoolz import pipe
 from subprocess import run,CompletedProcess
-import logging
+from toolz.functoolz import pipe
+from types import SimpleNamespace
 
 BASEDIR=str.strip(pipe(__file__,dirname,dirname)) or "."
 VERSION=open(BASEDIR+"/VERSION").read()
@@ -23,7 +24,6 @@ sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.plink import convert_plink
 
-options = {}
 second = ["gwa"]
 
 # pp = pprint.PrettyPrinter(indent=4)
@@ -63,19 +63,11 @@ def gemma2(ctx,debug,verbose,validate,log):
     #   gemma1_pass(list(args))
     ctx.ensure_object(dict)
 
-    options['debug'] = debug
-    ctx.obj['DEBUG'] = debug
-
-    options['verbose'] = verbose
-    ctx.obj['VERBOSE'] = verbose
-
-    options['validate'] = validate
-    ctx.obj['DEBUG'] = validate
-
-    if not log:
-        log = 'WARNING'
-    options['log'] = log
-    ctx.obj['LOG'] = log
+    opts = {}
+    opts['debug'] = debug
+    opts['verbose'] = verbose
+    opts['validate'] = validate
+    opts['log'] = log
     if log:
         logger = { 'DEBUG': logging.DEBUG,
                    'INFO': logging.INFO,
@@ -84,6 +76,7 @@ def gemma2(ctx,debug,verbose,validate,log):
         }
         logging.basicConfig(level=logger[log])
 
+    ctx.obj['OPTIONS'] = SimpleNamespace(**opts)
     if verbose:
         echo(options)
 
@@ -104,8 +97,9 @@ def gemma1(bin,args):
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
 #           requires: *.fam, *.bim and *.bed files
 @click.option('--plink', type=str, help="path (prefix to .fam, .bim and .bed)")
-def convert(plink):
-    convert_plink(plink,options['verbose'],options['debug'])
+@click.pass_context
+def convert(ctx,plink):
+    convert_plink(plink,ctx.obj['OPTIONS'])
 
 @gemma2.command(help="Filtering commands")
 @click.pass_context
@@ -116,7 +110,6 @@ def filter(ctx):
 @click.pass_context
 def grm(ctx):
     echo('- Kinship/Genetic Relationship Matrix (GRM) command')
-    echo('2 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
     if second:
         gemma2(second)
 
@@ -125,10 +118,6 @@ def grm(ctx):
 @click.pass_context
 def lmm(ctx,iterations):
     echo('** Genome-wide Association (GWA)')
-    echo('3 Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
-    echo("iterations is %s" % (iterations))
-    echo("verbose is %s" % (ctx.obj['VERBOSE']))
-    echo("log is %s" % (ctx.obj['LOG']))
 
 gemma2.add_command(convert)
 gemma2.add_command(gemma1)
