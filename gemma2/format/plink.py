@@ -37,8 +37,6 @@ def convert_plink(path: str, options: SimpleNamespace):
     assert inds == inds2, "Number of individuals not matching in fam and bed files"
     assert markers == markers2, "Number of markers not matching in bim and bed files"
     assert phenos == phenos2, "Number of phenotypes not matching in bim and fam files"
-    if options.debug or options.verbose>2:
-        memory_usage()
 
     basefn = options.outdir+"/"+basename(path)
     # Writing genotype file
@@ -52,8 +50,11 @@ def convert_plink(path: str, options: SimpleNamespace):
         for j in range(markers):
             markername = bim.snp[j]
             f.write(f"\n{markername}")
-            # for i in range(inds):
-            #     f.write(f"\t{translate[m[j,i]]}")
+            if options.low_mem: # shaves 20%
+                for i in range(inds):
+                    f.write(f"\t{translate[m[j,i]]}")
+            else:
+                f.write("\t".join([ translate[item] for item in m[j] ]))
 
     # Write control file last
     import json
@@ -63,7 +64,7 @@ def convert_plink(path: str, options: SimpleNamespace):
         "individuals": inds,
         "markers": markers,
         "phenotypes": phenos,
-        "geno": "mouse_hs1940_geno.tab",
+        "geno": basename(genofn),
         "alleles": ["A", "B", "H"],
         "genotypes": {
           "A": 1,
@@ -75,3 +76,6 @@ def convert_plink(path: str, options: SimpleNamespace):
     controlfn = basefn+".json"
     with open(controlfn, 'w') as cf:
         json.dump(control, cf, indent=4)
+
+    if options.debug or options.verbose>2:
+        memory_usage()

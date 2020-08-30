@@ -55,11 +55,12 @@ def gemma1_pass(bin,args):
 @click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                                         case_sensitive=False),
                                         default = 'WARNING',
-                                        show_default=True,
-)
+                                        show_default=True)
+@click.option('--low-mem', default=False, show_default=True,
+              help="Opt for low(er) RAM use")
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,outdir,debug,verbose,validate,log):
+def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
@@ -71,6 +72,7 @@ def gemma2(ctx,outdir,debug,verbose,validate,log):
     opts['validate'] = validate
     opts['log'] = log
     opts['outdir'] = outdir
+    opts['low_mem'] = low_mem
     if log:
         logger = { 'DEBUG': logging.DEBUG,
                    'INFO': logging.INFO,
