@@ -40,13 +40,13 @@ def convert_plink(path: str, options: SimpleNamespace, compression_level: int):
 
     basefn = options.outdir+"/"+basename(path)
     # Writing genotype file
-    genofn = basefn+"_geno.tsv"
+    genofn = basefn+"_geno.tsv.gz"
     logging.info(f"Writing geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
 
     import gzip
     # content = b"Lots of content here"
-    with gzip.open(genofn+".gz", mode='wb', compresslevel=compression_level) as f:
+    with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
     # with open(genofn, "w") as f:
         f.write("marker".encode())
         for i in range(inds):

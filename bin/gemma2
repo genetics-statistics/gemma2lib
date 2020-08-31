@@ -23,6 +23,7 @@ print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analys
 sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.plink import convert_plink
+from gemma2.utility.options import options
 
 second = ["gwa"]
 
@@ -48,16 +49,14 @@ def gemma1_pass(bin,args):
               help="Specify output directory path")
 @click.option('--validate/--no-validate', default=False, show_default=True,
               help="Validate input and output")
-@click.option('--debug/--no-debug', default=False, show_default=True,
-              help="Debug on/off")
+@click.option('--debug',is_flag=True,help="Debug on/off")
 @click.option('-v','--verbose', type=int, default=1, show_default=True, count=True,
               help="Verbosity levels 0-9")
 @click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                                         case_sensitive=False),
                                         default = 'WARNING',
                                         show_default=True)
-@click.option('--low-mem', default=False, show_default=True,
-              help="Opt for low(er) RAM use")
+@click.option('--low-mem',is_flag=True,help="Optimize for low(er) RAM")
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
@@ -65,8 +64,8 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
     ctx.ensure_object(dict)
-
     opts = {}
+
     opts['debug'] = debug
     opts['verbose'] = verbose
     opts['validate'] = validate
@@ -82,6 +81,8 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
         logging.basicConfig(level=logger[log])
 
     ctx.obj['OPTIONS'] = SimpleNamespace(**opts)
+    global options
+    options = opts
     if verbose:
         echo(opts)
 
@@ -116,12 +117,20 @@ def filter(ctx):
     echo('- Filter data')
 
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
+@click.option('--control','-c',type=click.File(),help="GEMMA2 control file (JSON)")
 @click.pass_context
 
-def grm(ctx):
-    echo('- Kinship/Genetic Relationship Matrix (GRM) command')
-    if second:
-        gemma2(second)
+def grm(ctx,control):
+    opts = ctx.obj['OPTIONS']
+    if opts.debug:
+        echo('- Kinship/Genetic Relationship Matrix (GRM) command')
+    import json
+    data = json.loads(control.read())
+    c2 = SimpleNamespace(**data)
+    print(data)
+    print(c2.genotypes['H'])
+    # if second:
+    #    gemma2(second)
 
 @gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--iterations', default=1_000)
