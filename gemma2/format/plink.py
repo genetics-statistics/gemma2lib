@@ -1,7 +1,7 @@
 import logging
 from os.path import dirname, basename
-from types import SimpleNamespace
 
+from gemma2.utility.options import get_options_ns
 from pandas_plink import read_plink
 
 import os, psutil, numpy as np
@@ -13,8 +13,9 @@ def memory_usage():
     else:
         print(f"{round(mem / float(2 ** 20) )}Mb RAM used")
 
-def convert_plink(path: str, options: SimpleNamespace, compression_level: int):
+def convert_plink(path: str, compression_level: int):
     """Convert PLINK format to GEMMA2"""
+    options = get_options_ns()
     verbose = options.verbose
     (bim,fam,bed) = read_plink(path, verbose=(True if verbose>1 else False))
     m = bed.compute()

@@ -23,13 +23,9 @@ print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analys
 sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.plink import convert_plink
-from gemma2.utility.options import options
+from gemma2.utility.options import set_options, get_options_ns
 
 second = ["gwa"]
-
-# pp = pprint.PrettyPrinter(indent=4)
-# print(sys.argv)
-
 split_on = ["%", "'=>'"]
 
 def gemma1_pass(bin,args):
@@ -80,9 +76,8 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
         }
         logging.basicConfig(level=logger[log])
 
-    ctx.obj['OPTIONS'] = SimpleNamespace(**opts)
-    global options
-    options = opts
+    set_options(opts)
+    ctx.obj['OPTIONS'] = get_options_ns()
     if verbose:
         echo(opts)
 
@@ -108,7 +103,7 @@ def gemma1(bin,args):
 @click.pass_context
 
 def convert(ctx,plink,compression_level):
-    convert_plink(plink,ctx.obj['OPTIONS'],compression_level)
+    convert_plink(plink,compression_level)
 
 @gemma2.command(help="Filtering commands")
 @click.pass_context
@@ -121,7 +116,7 @@ def filter(ctx):
 @click.pass_context
 
 def grm(ctx,control):
-    opts = ctx.obj['OPTIONS']
+    opts = get_options_ns()
     if opts.debug:
         echo('- Kinship/Genetic Relationship Matrix (GRM) command')
     import json
