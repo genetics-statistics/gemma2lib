@@ -93,6 +93,7 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
 # @click.argument('bin', envvar='GEMMA1_BIN', type=click.File('r'), default="gemma")
 @click.option('--bin', type=str, default="gemma", envvar='GEMMA1_BIN', show_default=True, help="Path or binary name pointing to GEMMAv1 (alternatively set GEMMA1_BIN)")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
+
 def gemma1(bin,args):
     cmdline = list(args)
     gemma1_pass(bin,args)
@@ -102,17 +103,21 @@ def gemma1(bin,args):
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
 #           requires: *.fam, *.bim and *.bed files
 @click.option('--plink', type=str, help="path (prefix to .fam, .bim and .bed)")
+@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level")
 @click.pass_context
-def convert(ctx,plink):
-    convert_plink(plink,ctx.obj['OPTIONS'])
+
+def convert(ctx,plink,compression_level):
+    convert_plink(plink,ctx.obj['OPTIONS'],compression_level)
 
 @gemma2.command(help="Filtering commands")
 @click.pass_context
+
 def filter(ctx):
     echo('- Filter data')
 
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
 @click.pass_context
+
 def grm(ctx):
     echo('- Kinship/Genetic Relationship Matrix (GRM) command')
     if second:
@@ -121,6 +126,7 @@ def grm(ctx):
 @gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--iterations', default=1_000)
 @click.pass_context
+
 def lmm(ctx,iterations):
     echo('** Genome-wide Association (GWA)')
 
