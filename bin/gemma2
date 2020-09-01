@@ -13,7 +13,6 @@ from itertools import chain
 from os.path import dirname
 from subprocess import run,CompletedProcess
 from toolz.functoolz import pipe
-from types import SimpleNamespace
 
 BASEDIR=str.strip(pipe(__file__,dirname,dirname)) or "."
 VERSION=open(BASEDIR+"/VERSION").read()
@@ -22,6 +21,7 @@ print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analys
 
 sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
+from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.format.plink import convert_plink
 from gemma2.utility.options import set_options, get_options_ns
 
@@ -38,6 +38,7 @@ def gemma1_pass(bin,args):
     # print(args1)
     run(args1)
 
+# -------------------------------------------------------------------------------
 # Grouping multi commands, see https://click.palletsprojects.com/en/7.x/commands/
 # @click.group(invoke_without_command=True)
 @click.group()
@@ -81,6 +82,7 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     if verbose:
         echo(opts)
 
+# -------------------------------------------------------------------------------
 # The gemma1 command does a simple pass through without command line
 # checking! This is for quick testing only as it finds the gemma
 # binary
@@ -94,6 +96,7 @@ def gemma1(bin,args):
     cmdline = list(args)
     gemma1_pass(bin,args)
 
+# -------------------------------------------------------------------------------
 @gemma2.command(help="Convert from PLINK and BIMBAM to GEMMA2/Rqtl2 format")
 # @click.argument
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
@@ -105,27 +108,25 @@ def gemma1(bin,args):
 def convert(ctx,plink,compression_level):
     convert_plink(plink,compression_level)
 
+# -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
 @click.pass_context
 
 def filter(ctx):
     echo('- Filter data')
 
+# -------------------------------------------------------------------------------
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
-@click.option('--control','-c',type=click.File(),help="GEMMA2 control file (JSON)")
+@click.option('--control','-c',type=click.Path(exists=True, readable=True),required=True,help="GEMMA2 control file (JSON)")
 @click.pass_context
 
 def grm(ctx,control):
     opts = get_options_ns()
     if opts.debug:
         echo('- Kinship/Genetic Relationship Matrix (GRM) command')
-    import json
-    data = json.loads(control.read())
-    c2 = SimpleNamespace(**data)
-    print(data)
-    print(c2.genotypes['H'])
-    # if second:
-    #    gemma2(second)
+    c = load_control(control)
+    G = load_geno(c)
+    # K = compute_kinship(G)
 
 @gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--iterations', default=1_000)
