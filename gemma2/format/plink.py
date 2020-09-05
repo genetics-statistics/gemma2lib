@@ -1,20 +1,18 @@
 import logging
 from os.path import dirname, basename
+import sys
 
 from gemma2.utility.options import get_options_ns
 from pandas_plink import read_plink
-
-import os, psutil, numpy as np
-def memory_usage():
-    process = psutil.Process(os.getpid())
-    mem = process.memory_full_info()[0]
-    if (mem > 1024**3):
-        print(f"{round(mem / float(2 ** 20) / 102.4 )/10}Gb RAM used")
-    else:
-        print(f"{round(mem / float(2 ** 20) )}Mb RAM used")
+from gemma2.utility.system import memory_usage
 
 def convert_plink(path: str, compression_level: int):
     """Convert PLINK format to GEMMA2"""
+    def mknum(v):
+        if v != v:
+            return "NA"
+        return(str(v))
+
     options = get_options_ns()
     verbose = options.verbose
     (bim,fam,bed) = read_plink(path, verbose=(True if verbose>1 else False))
@@ -40,7 +38,22 @@ def convert_plink(path: str, compression_level: int):
     assert phenos == phenos2, "Number of phenotypes not matching in bim and fam files"
 
     basefn = options.outdir+"/"+basename(path)
-    # Writing genotype file
+
+    phenofn = basefn+"_pheno.tsv"
+    logging.info(f"Writing pheno file {phenofn}")
+    p = fam.to_numpy()
+    with open(phenofn, mode="w") as f:
+        f.write("id")
+        for c in fam.columns.values:
+            f.write(f"\t{c}")
+        f.write("\n")
+        for j in range(inds):
+            f.write(str(j+1)+"\t")
+            f.write("\t".join([mknum(v) for v in p[j]]))
+            f.write("\n")
+
+    sys.exit(1)
+
     genofn = basefn+"_geno.tsv.gz"
     logging.info(f"Writing geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }

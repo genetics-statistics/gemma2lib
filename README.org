@@ -109,6 +109,10 @@ If you want a quick preview use the ~--debug~ switch:
 
 ** grm command
 
+Using the control file generated from ~convert~:
+
+: gemma2 --debug --log INFO -vv grm -c mouse_hs1940.json
+
 ** lmm command
 
 * LICENSE
