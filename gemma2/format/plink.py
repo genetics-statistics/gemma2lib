@@ -15,6 +15,8 @@ def convert_plink(path: str, compression_level: int):
 
     options = get_options_ns()
     verbose = options.verbose
+    memory_usage("plink before load")
+
     (bim,fam,bed) = read_plink(path, verbose=(True if verbose>1 else False))
     m = bed.compute()
     if options.debug:
@@ -38,6 +40,7 @@ def convert_plink(path: str, compression_level: int):
     assert phenos == phenos2, "Number of phenotypes not matching in bim and fam files"
 
     basefn = options.outdir+"/"+basename(path)
+    memory_usage("plink pandas")
 
     phenofn = basefn+"_pheno.tsv"
     logging.info(f"Writing pheno file {phenofn}")
@@ -52,11 +55,12 @@ def convert_plink(path: str, compression_level: int):
             f.write("\t".join([mknum(v) for v in p[j]]))
             f.write("\n")
 
-    sys.exit(1)
+    memory_usage("plink pheno")
 
     genofn = basefn+"_geno.tsv.gz"
     logging.info(f"Writing geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
+
 
     import gzip
     # content = b"Lots of content here"
@@ -96,5 +100,4 @@ def convert_plink(path: str, compression_level: int):
     with open(controlfn, 'w') as cf:
         json.dump(control, cf, indent=4)
 
-    if options.debug or options.verbose>2:
-        memory_usage()
+    memory_usage("plink geno")
