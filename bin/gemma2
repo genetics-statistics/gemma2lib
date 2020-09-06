@@ -126,8 +126,7 @@ def convert(ctx,plink,compression_level,to_bimbam,control):
     elif to_bimbam:
         if not control:
             raise Exception("You need a control file for conversion to BIMBAM")
-        C = load_control(control)
-        write_bimbam(C)
+        write_bimbam(control)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
