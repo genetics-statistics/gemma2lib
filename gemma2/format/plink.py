@@ -61,7 +61,6 @@ def convert_plink(path: str, compression_level: int):
     logging.info(f"Writing geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
 
-
     import gzip
     # content = b"Lots of content here"
     with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
@@ -83,6 +82,7 @@ def convert_plink(path: str, compression_level: int):
     control = {
         "description": basename(path),
         "crosstype": "hs",
+        "sep": "\t",
         "individuals": inds,
         "markers": markers,
         "phenotypes": phenos,
@@ -93,8 +93,8 @@ def convert_plink(path: str, compression_level: int):
           "H": 2,
           "B": 3
         },
-        "geno_transposed": True,
-        "geno_compact": True
+        "geno_sep": False,
+        "geno_transposed": True
     }
     controlfn = basefn+".json"
     with open(controlfn, 'w') as cf:

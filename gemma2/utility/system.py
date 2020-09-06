@@ -1,7 +1,6 @@
 import os, psutil, numpy as np
 from gemma2.utility.options import get_options_ns
 
-
 def memory_usage(msg: str = None):
     options = get_options_ns()
     if options.debug_ram or options.verbose>2:
