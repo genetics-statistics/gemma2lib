@@ -23,10 +23,12 @@ sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.format.plink import convert_plink
+from gemma2.format.bimbam import write_bimbam
 from gemma2.utility.options import set_options, get_options_ns
 
 second = ["gwa"]
 split_on = ["%", "'=>'"]
+dump_stacktrace = False
 
 def gemma1_pass(bin,args):
     """At this stage a simple pass-through"""
@@ -46,7 +48,7 @@ def gemma1_pass(bin,args):
               help="Specify output directory path")
 @click.option('--validate/--no-validate', default=False, show_default=True,
               help="Validate input and output")
-@click.option('--debug', type=click.Choice(['RAM','ALL'],
+@click.option('--debug', type=click.Choice(['RAM','STACK','ALL'],
                                            case_sensitive=False),
                                            default=None,
                                            help="Debug options")
@@ -67,8 +69,12 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     opts = {}
 
     opts['debug'] = debug
+    global dump_stacktrace
+    dump_stacktrace = debug == 'STACK' or debug == 'ALL'
     opts['verbose'] = verbose
     opts['validate'] = validate
+    if verbose > 1 and log == 'WARNING':
+        log = 'INFO' # bump log level so we don't have to do that every time
     opts['log'] = log
     opts['outdir'] = outdir
     opts['low_mem'] = low_mem
@@ -104,12 +110,24 @@ def gemma1(bin,args):
 # @click.argument
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
 #           requires: *.fam, *.bim and *.bed files
-@click.option('--plink', type=str, help="path (prefix to .fam, .bim and .bed)")
-@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level")
+@click.option('--plink', type=str,
+              help="Convert path (prefix to .fam, .bim and .bed) to GEMMA2 format")
+@click.option('--to-bimbam',is_flag=True,
+              help="Convert GEMMA2 format to BIMBAM (requires control file)")
+@click.option('--control','-c',type=click.Path(exists=True, readable=True),
+              help="GEMMA2 control file (JSON)")
+
+@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def convert(ctx,plink,compression_level):
-    convert_plink(plink,compression_level)
+def convert(ctx,plink,compression_level,to_bimbam,control):
+    if plink:
+        convert_plink(plink,compression_level)
+    elif to_bimbam:
+        if not control:
+            raise Exception("You need a control file for conversion to BIMBAM")
+        C = load_control(control)
+        write_bimbam(C)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
@@ -117,6 +135,13 @@ def convert(ctx,plink,compression_level):
 
 def filter(ctx):
     echo('- Filter data')
+
+# -------------------------------------------------------------------------------
+@gemma2.command(help="Validation commands")
+@click.pass_context
+
+def validate(ctx):
+    echo('- Validate data')
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
@@ -144,4 +169,14 @@ gemma2.add_command(filter)
 gemma2.add_command(grm)
 gemma2.add_command(lmm)
 
-gemma2()
+import traceback
+
+try:
+    gemma2()
+except Exception:
+    # exc_type, exc_value, exc_traceback = sys.exc_info()
+    if dump_stacktrace:
+        traceback.print_exc()
+    else:
+        traceback.print_exc(limit=-1)
+        echo("Use switch --debug STACK to get a full stack trace")

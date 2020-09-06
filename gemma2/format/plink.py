@@ -83,10 +83,13 @@ def convert_plink(path: str, compression_level: int):
         "description": basename(path),
         "crosstype": "hs",
         "sep": "\t",
+        "na.strings": ["-", "NA"],
+        "comment.char": "#",
         "individuals": inds,
         "markers": markers,
         "phenotypes": phenos,
         "geno": basename(genofn),
+        "pheno": basename(phenofn),
         "alleles": ["A", "B", "H"],
         "genotypes": {
           "A": 1,
@@ -97,6 +100,7 @@ def convert_plink(path: str, compression_level: int):
         "geno_transposed": True
     }
     controlfn = basefn+".json"
+    logging.info(f"Writing control file {controlfn}")
     with open(controlfn, 'w') as cf:
         json.dump(control, cf, indent=4)
 

@@ -103,7 +103,39 @@ format and metadata is represented in YAML/JSON.
 
 If you want a quick preview use the ~--debug~ switch:
 
-: gemma2 -vv --log INFO --debug convert --plink example/mouse_hs1940
+: gemma2 -vv --log INFO --debug ALL convert --plink example/mouse_hs1940
+: cat mouse_hs1940.json
+
+#+BEGIN_SRC js
+{
+    "description": "mouse_hs1940",
+    "crosstype": "hs",
+    "sep": "\t",
+    "na.strings": [
+        "-",
+        "NA"
+    ],
+    "comment.char": "#",
+    "individuals": 1940,
+    "markers": 12226,
+    "phenotypes": 7,
+    "geno": "mouse_hs1940_geno.tsv.gz",
+    "pheno": "mouse_hs1940_pheno.tsv",
+    "alleles": [
+        "A",
+        "B",
+        "H"
+    ],
+    "genotypes": {
+        "A": 1,
+        "H": 2,
+        "B": 3
+    },
+    "geno_sep": false,
+    "geno_transposed": true
+}
+#+END_SRC
+
 
 ** filter command
 
