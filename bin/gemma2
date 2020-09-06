@@ -46,7 +46,10 @@ def gemma1_pass(bin,args):
               help="Specify output directory path")
 @click.option('--validate/--no-validate', default=False, show_default=True,
               help="Validate input and output")
-@click.option('--debug',is_flag=True,help="Debug on/off")
+@click.option('--debug', type=click.Choice(['RAM','ALL'],
+                                           case_sensitive=False),
+                                           default=None,
+                                           help="Debug options")
 @click.option('-v','--verbose', type=int, default=1, show_default=True, count=True,
               help="Verbosity levels 0-9")
 @click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'],

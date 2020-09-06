@@ -19,7 +19,7 @@ def convert_plink(path: str, compression_level: int):
 
     (bim,fam,bed) = read_plink(path, verbose=(True if verbose>1 else False))
     m = bed.compute()
-    if options.debug:
+    if options.debug_data:
         print("Debug view of PLINK\n")
         print("===> BIM alleles/markers")
         print(bim.head())
