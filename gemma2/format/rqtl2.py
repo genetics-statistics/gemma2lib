@@ -86,7 +86,6 @@ format is supported
     print(K)
     memory_usage()
 
-
 def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
     count = 0
@@ -95,3 +94,13 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
             count += 1
             if header or count > 1:
                 yield line.split(sep)
+
+def iter_geno(fn: str, sep: str = "\t", header: bool = False):
+    count = 0
+    with gzip.open(fn) as f:
+        for line in f:
+            count += 1
+            if header or count>1:
+                l = line.decode()
+                marker,genotypes = l.strip().split("\t",2)
+                yield marker,[char for char in genotypes]

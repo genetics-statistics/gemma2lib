@@ -106,27 +106,39 @@ def gemma1(bin,args):
     gemma1_pass(bin,args)
 
 # -------------------------------------------------------------------------------
-@gemma2.command(help="Convert from PLINK and BIMBAM to GEMMA2/Rqtl2 format")
+@gemma2.command(help="Convert from PLINK or BIMBAM to GEMMA2/Rqtl2 format")
 # @click.argument
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
 #           requires: *.fam, *.bim and *.bed files
 @click.option('--plink', type=str,
               help="Convert path (prefix to .fam, .bim and .bed) to GEMMA2 format")
-@click.option('--to-bimbam',is_flag=True,
-              help="Convert GEMMA2 format to BIMBAM (requires control file)")
-@click.option('--control','-c',type=click.Path(exists=True, readable=True),
-              help="GEMMA2 control file (JSON)")
 
 @click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def convert(ctx,plink,compression_level,to_bimbam,control):
+def read(ctx,plink,compression_level):
     if plink:
+        echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
         convert_plink(plink,compression_level)
-    elif to_bimbam:
-        if not control:
-            raise Exception("You need a control file for conversion to BIMBAM")
-        write_bimbam(control)
+
+# -------------------------------------------------------------------------------
+@gemma2.command(help="Convert from GEMMA2/Rqtl2 format to BIMBAM")
+# @click.argument
+#  -bfile    [prefix]        specify input PLINK binary ped file prefix.
+#           requires: *.fam, *.bim and *.bed files
+@click.option('--bimbam',is_flag=True,required=True,
+              help="Convert GEMMA2 format to BIMBAM (requires control file)")
+@click.option('--control','-c',type=click.Path(exists=True, readable=True),
+              required=True,
+              help="GEMMA2 control file (JSON)")
+@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
+@click.pass_context
+
+def write(ctx,compression_level,bimbam,control):
+    # if not control:
+    #     raise Exception("You need a control file for conversion to BIMBAM")
+    echo("Converting from GEMMA2/Rqtl2 format to BIMBAM...")
+    write_bimbam(control,compression_level)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
@@ -162,7 +174,8 @@ def grm(ctx,control):
 def lmm(ctx,iterations):
     echo('** Genome-wide Association (GWA)')
 
-gemma2.add_command(convert)
+gemma2.add_command(read)
+gemma2.add_command(write)
 gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)

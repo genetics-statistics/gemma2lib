@@ -48,12 +48,12 @@ def convert_plink(path: str, compression_level: int):
     with open(phenofn, mode="w") as f:
         f.write("id")
         for c in fam.columns.values:
-            if c != "i":
+            if c != "i": # we skip the last i column
                 f.write(f"\t{c}")
         f.write("\n")
         for j in range(inds):
             f.write(str(j+1)+"\t")
-            f.write("\t".join([mknum(v) for v in p[j,:-1]]))
+            f.write("\t".join([mknum(v) for v in p[j,:-1]])) # except for i column
             f.write("\n")
 
     memory_usage("plink pheno")
