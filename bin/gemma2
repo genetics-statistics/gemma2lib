@@ -81,8 +81,6 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,license):
     dump_stacktrace = debug == 'STACK' or debug == 'ALL'
     opts['verbose'] = verbose
     opts['validate'] = validate
-    if verbose > 1 and log == 'WARNING':
-        log = 'INFO' # bump log level so we don't have to do that every time
     opts['log'] = log
     opts['out_prefix'] = out_prefix
     opts['low_mem'] = low_mem
