@@ -1,0 +1,15 @@
+* ChangeLog v0.01 (2020/xx/xx) TBA
+
+We are excited to announce the first GEMMA2LIB test release with
+new functionalities:
+
+1. GEMMA1 pass through with 'gemma2 gemma1 opts...'
+2. GEMMA2 PLINK to GEMMA2/Rqtl2 format conversion
+  + [ ] What do to with allele values
+3. GEMMA2 BIMBAM to GEMMA2/Rqtl2 conversion
+  + [ ] Convert GeneNetwork style BIMBAM (0,0.5,1)
+        see https://github.com/rqtl/qtl2data/tree/master/BXD
+  + [ ] Convert example mouse BIMBAM with 0.45 values
+4. Filtering
+  + [ ] Phenotypes (NA)
+  + [ ] other filters

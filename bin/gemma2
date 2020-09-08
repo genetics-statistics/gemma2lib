@@ -116,7 +116,7 @@ def gemma1(bin,args):
 @click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def read(ctx,plink,compression_level):
+def convert(ctx,plink,compression_level):
     if plink:
         echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
         convert_plink(plink,compression_level)
@@ -134,7 +134,7 @@ def read(ctx,plink,compression_level):
 @click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def write(ctx,compression_level,bimbam,control):
+def export(ctx,compression_level,bimbam,control):
     # if not control:
     #     raise Exception("You need a control file for conversion to BIMBAM")
     echo("Converting from GEMMA2/Rqtl2 format to BIMBAM...")
@@ -174,8 +174,8 @@ def grm(ctx,control):
 def lmm(ctx,iterations):
     echo('** Genome-wide Association (GWA)')
 
-gemma2.add_command(read)
-gemma2.add_command(write)
+gemma2.add_command(convert)
+gemma2.add_command(export)
 gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)

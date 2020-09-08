@@ -29,7 +29,7 @@ def convert_plink(path: str, compression_level: int):
         print(fam.info())
         print("===> BED genotypes")
         print(m)
-        print(m[0:3,0:40])
+        print([x for x in m[0]])
         print(bim.shape)
 
     markers2,phenos2 = bim.shape
@@ -82,7 +82,7 @@ def convert_plink(path: str, compression_level: int):
     import json
     control = {
         "description": basename(path),
-        "crosstype": "hs",
+        "crosstype": None,   # we are not assuming a cross for GEMMA
         "sep": "\t",
         "na.strings": ["-", "NA"],
         "comment.char": "#",
