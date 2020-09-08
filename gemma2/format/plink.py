@@ -1,10 +1,28 @@
 import logging
-from os.path import dirname, basename
+from os.path import dirname, basename, isfile
 import sys
 
 from gemma2.utility.options import get_options_ns
 from pandas_plink import read_plink
 from gemma2.utility.system import memory_usage
+
+
+# Can not overwrite existing file
+class safe_write_open(object):
+    def __init__(self, file_name, msg):
+        self.file_name = file_name
+        self.msg = msg
+
+    def __enter__(self):
+        if isfile(self.file_name):
+            raise Exception(f"ERROR: {self.file_name} already exists")
+        logging.info(f"{self.msg} {self.file_name}")
+        self.file = open(self.file_name, 'w')
+        return self.file
+
+    def __exit__(self, type, value, tb):
+        self.file.close()
+
 
 def convert_plink(path: str, compression_level: int):
     """Convert PLINK format to GEMMA2"""
@@ -44,9 +62,8 @@ def convert_plink(path: str, compression_level: int):
     memory_usage("plink pandas")
 
     phenofn = basefn+"_pheno.tsv"
-    logging.info(f"Writing GEMMA2 pheno file {phenofn}")
     p = fam.to_numpy()
-    with open(phenofn, mode="w") as f:
+    with safe_write_open(phenofn,"Writing GEMMA2 pheno file") as f:
         f.write("id")
         for c in fam.columns.values:
             if c != "i": # we skip the last i column
@@ -56,6 +73,7 @@ def convert_plink(path: str, compression_level: int):
             f.write(str(j+1)+"\t")
             f.write("\t".join([mknum(v) for v in p[j,:-1]])) # except for i column
             f.write("\n")
+        pass
 
     memory_usage("plink pheno")
 
@@ -102,8 +120,7 @@ def convert_plink(path: str, compression_level: int):
         "geno_transposed": True
     }
     controlfn = basefn+".json"
-    logging.info(f"Writing GEMMA2 control file {controlfn}")
-    with open(controlfn, 'w') as cf:
-        json.dump(control, cf, indent=4)
+    with safe_write_open(controlfn,"Writing GEMMA2 control file") as f:
+        json.dump(control, f, indent=4)
 
     memory_usage("plink geno")
