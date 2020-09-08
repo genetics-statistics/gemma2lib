@@ -84,7 +84,7 @@ def convert_plink(path: str, compression_level: int):
     # with open(genofn, "w") as f:
         f.write("marker".encode())
         for i in range(inds):
-            f.write(f"\t{i}".encode())
+            f.write(f"\t{i+1}".encode())
         for j in range(markers):
             markername = bim.snp[j]
             f.write(f"\n{markername}\t".encode())

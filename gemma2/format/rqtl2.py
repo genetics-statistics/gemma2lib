@@ -108,7 +108,11 @@ def iter_geno(fn: str, sep: str = "\t", header: bool = False):
     with gzip.open(fn) as f:
         for line in f:
             count += 1
-            if header or count>1:
+            if header and count==1:
+                h = line.decode()
+                hs = h.strip().split("\t")
+                yield hs
+            if count>1:
                 l = line.decode()
                 marker,genotypes = l.strip().split("\t",2)
                 yield marker,[char for char in genotypes]
