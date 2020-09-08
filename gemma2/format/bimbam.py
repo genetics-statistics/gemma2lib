@@ -13,6 +13,9 @@ from gemma2.utility.system import memory_usage
 
 from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno
 
+def convert_bimbam(genofn: str, phenofn: str):
+    print("HELLO",genofn)
+
 def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
     options = get_options_ns()

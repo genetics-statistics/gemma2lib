@@ -23,7 +23,7 @@ sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.format.plink import convert_plink
-from gemma2.format.bimbam import write_bimbam
+from gemma2.format.bimbam import convert_bimbam,write_bimbam
 from gemma2.filters import filter
 from gemma2.utility.options import set_options, get_options_ns
 
@@ -120,12 +120,21 @@ def gemma1(bin,args):
 @gemma2.command(help="Convert from PLINK or BIMBAM to GEMMA2/Rqtl2 format")
 @click.option('--plink', type=str,
               help="Convert path (prefix to .fam, .bim and .bed) to GEMMA2 format")
+@click.option('--bimbam', is_flag=True, default=False,
+              help="Convert BIMBAM geno and pheno files to GEMMA2 format")
+@click.option('--geno','-g',type=click.Path(exists=True, readable=True),
+              help="BIMBAM geno file")
+@click.option('--pheno','-p',type=click.Path(exists=True, readable=True),
+              help="BIMBAM pheno file")
 @click.pass_context
 
-def convert(ctx,plink):
+def convert(ctx,plink,bimbam,geno,pheno):
     if plink:
         echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
         convert_plink(plink)
+    if bimbam:
+        echo("Converting from BIMBAM to GEMMA/Rqtl2 format...")
+        convert_bimbam(geno,pheno)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Export GEMMA2/Rqtl2 format to BIMBAM (internal function)")
