@@ -6,7 +6,6 @@ from gemma2.utility.options import get_options_ns
 from pandas_plink import read_plink
 from gemma2.utility.system import memory_usage
 
-
 # Can not overwrite existing file
 class safe_write_open(object):
     def __init__(self, file_name, msg):
@@ -22,7 +21,6 @@ class safe_write_open(object):
 
     def __exit__(self, type, value, tb):
         self.file.close()
-
 
 def convert_plink(path: str, compression_level: int):
     """Convert PLINK format to GEMMA2"""
@@ -73,7 +71,6 @@ def convert_plink(path: str, compression_level: int):
             f.write(str(j+1)+"\t")
             f.write("\t".join([mknum(v) for v in p[j,:-1]])) # except for i column
             f.write("\n")
-        pass
 
     memory_usage("plink pheno")
 

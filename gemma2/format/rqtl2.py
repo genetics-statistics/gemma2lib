@@ -14,6 +14,10 @@ def load_control(fn: str) -> SimpleNamespace:
     logging.info(f"Reading GEMMA2/Rqtl2 control {fn}")
 
     data = json.loads(open(fn).read())
+    if not "na.strings" in data.values():
+        data["na.strings"] = ["NA","nan","-"]
+
+    data["na_strings"] = data["na.strings"]
     logging.info(data)
     control = SimpleNamespace(**data)
     return control
@@ -96,7 +100,7 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
         for line in f:
             count += 1
             if header or count > 1:
-                yield line.split(sep)
+                yield line.strip().split(sep)
 
 def iter_geno(fn: str, sep: str = "\t", header: bool = False):
     count = 0

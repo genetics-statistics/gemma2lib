@@ -143,16 +143,15 @@ def export(ctx,compression_level,bimbam,control):
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
-@click.option('-p','--missing-phenotypes',is_flag=True,help="Output")
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),
               required=True,
               help="GEMMA2 control file (JSON)")
+@click.option('-p','--pheno-column',type=int, default=1, show_default=True,
+              help="Filter on phenotype column")
 @click.pass_context
 
-def filters(ctx,missing_phenotypes,control):
-    if missing_phenotypes:
-        echo('Filter on missing phenotypes')
-        filter(control)
+def filters(ctx,control,pheno_column):
+    filter(control,pheno_column)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validation commands")
