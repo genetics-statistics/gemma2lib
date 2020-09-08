@@ -15,14 +15,14 @@ class safe_write_open(object):
     def __enter__(self):
         if isfile(self.file_name):
             raise Exception(f"ERROR: {self.file_name} already exists")
-        logging.info(f"{self.msg} {self.file_name}")
         self.file = open(self.file_name, 'w')
         return self.file
 
     def __exit__(self, type, value, tb):
+        logging.info(f"{self.msg} {self.file_name}")
         self.file.close()
 
-def convert_plink(path: str, compression_level: int):
+def convert_plink(path: str):
     """Convert PLINK format to GEMMA2"""
     def mknum(v):
         if v != v:
@@ -30,6 +30,7 @@ def convert_plink(path: str, compression_level: int):
         return(str(v))
 
     options = get_options_ns()
+    compression_level = options.compression_level
     verbose = options.verbose
     memory_usage("plink before load")
 

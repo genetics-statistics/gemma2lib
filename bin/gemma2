@@ -61,12 +61,13 @@ def gemma1_pass(bin,args):
 @click.option('-o','--out-prefix', type=click.Path(writable=True),
               default="result", show_default=True,
               help="Specify GEMMA2/Rqtl2 output file prefix (including path)")
+@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.option('--license',is_flag=True,
               help="Show license: GEMMA is distributed under the GNU General Public GPLv3")
 
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,license):
+def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,compression_level,license):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
@@ -84,6 +85,7 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,license):
     opts['validate'] = validate
     opts['log'] = log
     opts['out_prefix'] = out_prefix
+    opts['compression_level'] = compression_level
     opts['low_mem'] = low_mem
     if log:
         logger = { 'DEBUG': logging.DEBUG,
@@ -118,14 +120,12 @@ def gemma1(bin,args):
 @gemma2.command(help="Convert from PLINK or BIMBAM to GEMMA2/Rqtl2 format")
 @click.option('--plink', type=str,
               help="Convert path (prefix to .fam, .bim and .bed) to GEMMA2 format")
-
-@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def convert(ctx,plink,compression_level):
+def convert(ctx,plink):
     if plink:
         echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
-        convert_plink(plink,compression_level)
+        convert_plink(plink)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Export GEMMA2/Rqtl2 format to BIMBAM (internal function)")
@@ -134,12 +134,11 @@ def convert(ctx,plink,compression_level):
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),
               required=True,
               help="GEMMA2 control file (JSON format)")
-@click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
-def export(ctx,compression_level,bimbam,control):
+def export(ctx,bimbam,control):
     echo("Converting from GEMMA2/Rqtl2 format to BIMBAM...")
-    write_bimbam(control,compression_level)
+    write_bimbam(control)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")

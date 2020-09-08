@@ -8,12 +8,14 @@ from os.path import dirname, basename, splitext
 import sys
 
 from types import SimpleNamespace
+from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
 
 from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno
 
-def write_bimbam(controlfn,compression_level):
+def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
+    options = get_options_ns()
     path = dirname(controlfn)
     control = load_control(controlfn)
     base = splitext(control.pheno)[0]
@@ -33,7 +35,7 @@ def write_bimbam(controlfn,compression_level):
     genofn = base+"_bimbam.txt.gz"
     logging.info(f"Writing BIMBAM geno file {genofn}")
     genotype_translate = { "A": "1", "B": "0", "H": "2"}
-    with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
+    with gzip.open(genofn, mode='wb', compresslevel=options.compression_level) as f:
         # f.write("marker".encode())
         for marker,genotypes in iter_geno(control.geno, sep=control.geno_sep, header=False):
             f.write(marker.encode())
