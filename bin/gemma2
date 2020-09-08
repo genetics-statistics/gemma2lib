@@ -24,6 +24,7 @@ import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.format.plink import convert_plink
 from gemma2.format.bimbam import write_bimbam
+from gemma2.filters import filter
 from gemma2.utility.options import set_options, get_options_ns
 
 second = ["gwa"]
@@ -106,7 +107,6 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,license):
 # binary
 @gemma2.command(context_settings=dict(ignore_unknown_options=True),
                 help="Raw GEMMAv1 pass through mode")
-# @click.argument('bin', envvar='GEMMA1_BIN', type=click.File('r'), default="gemma")
 @click.option('--bin', type=str, default="gemma", envvar='GEMMA1_BIN', show_default=True, help="Path or binary name pointing to GEMMAv1 (alternatively set GEMMA1_BIN)")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 
@@ -116,9 +116,6 @@ def gemma1(bin,args):
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Convert from PLINK or BIMBAM to GEMMA2/Rqtl2 format")
-# @click.argument
-#  -bfile    [prefix]        specify input PLINK binary ped file prefix.
-#           requires: *.fam, *.bim and *.bed files
 @click.option('--plink', type=str,
               help="Convert path (prefix to .fam, .bim and .bed) to GEMMA2 format")
 
@@ -132,9 +129,6 @@ def convert(ctx,plink,compression_level):
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Export GEMMA2/Rqtl2 format to BIMBAM (internal function)")
-# @click.argument
-#  -bfile    [prefix]        specify input PLINK binary ped file prefix.
-#           requires: *.fam, *.bim and *.bed files
 @click.option('--bimbam',is_flag=True,required=True,
               help="Convert GEMMA2 format to BIMBAM (requires control file)")
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),
@@ -144,8 +138,6 @@ def convert(ctx,plink,compression_level):
 @click.pass_context
 
 def export(ctx,compression_level,bimbam,control):
-    # if not control:
-    #     raise Exception("You need a control file for conversion to BIMBAM")
     echo("Converting from GEMMA2/Rqtl2 format to BIMBAM...")
     write_bimbam(control,compression_level)
 
@@ -155,8 +147,12 @@ def export(ctx,compression_level,bimbam,control):
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),
               required=True,
               help="GEMMA2 control file (JSON)")
-def filter(pheno_missing,control):
-    echo('Filter data')
+@click.pass_context
+
+def filters(ctx,missing_phenotypes,control):
+    if missing_phenotypes:
+        echo('Filter on missing phenotypes')
+        filter(control)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validation commands")
@@ -188,7 +184,7 @@ def lmm(ctx,iterations):
 gemma2.add_command(convert)
 gemma2.add_command(export)
 gemma2.add_command(gemma1)
-gemma2.add_command(filter)
+gemma2.add_command(filters)
 gemma2.add_command(grm)
 gemma2.add_command(lmm)
 
