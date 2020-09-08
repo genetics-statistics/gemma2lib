@@ -21,7 +21,7 @@ def write_bimbam(controlfn,compression_level):
         base = path + "/" + base
 
     phenofn = base+"_bimbam.txt"
-    logging.info(f"Writing pheno file {phenofn}")
+    logging.info(f"Writing BIMBAM pheno file {phenofn}")
     with open(phenofn,"w") as f:
         for p in iter_pheno(control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
@@ -31,7 +31,7 @@ def write_bimbam(controlfn,compression_level):
     if path:
         base = path + "/" + base
     genofn = base+"_bimbam.txt.gz"
-    logging.info(f"Writing geno file {genofn}")
+    logging.info(f"Writing BIMBAM geno file {genofn}")
     genotype_translate = { "A": "1", "B": "0", "H": "2"}
     with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
         # f.write("marker".encode())

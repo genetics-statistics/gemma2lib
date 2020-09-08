@@ -17,6 +17,7 @@ def convert_plink(path: str, compression_level: int):
     verbose = options.verbose
     memory_usage("plink before load")
 
+    logging.info(f"Reading PLINK files {path}")
     (bim,fam,bed) = read_plink(path, verbose=(True if verbose>1 else False))
     m = bed.compute()
     if options.debug_data:
@@ -39,11 +40,11 @@ def convert_plink(path: str, compression_level: int):
     assert markers == markers2, "Number of markers not matching in bim and bed files"
     assert phenos == phenos2, "Number of phenotypes not matching in bim and fam files"
 
-    basefn = options.outdir+"/"+basename(path)
+    basefn = options.out_prefix
     memory_usage("plink pandas")
 
     phenofn = basefn+"_pheno.tsv"
-    logging.info(f"Writing pheno file {phenofn}")
+    logging.info(f"Writing GEMMA2 pheno file {phenofn}")
     p = fam.to_numpy()
     with open(phenofn, mode="w") as f:
         f.write("id")
@@ -59,7 +60,7 @@ def convert_plink(path: str, compression_level: int):
     memory_usage("plink pheno")
 
     genofn = basefn+"_geno.tsv.gz"
-    logging.info(f"Writing geno file {genofn}")
+    logging.info(f"Writing GEMMA2 geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
 
     import gzip
@@ -101,7 +102,7 @@ def convert_plink(path: str, compression_level: int):
         "geno_transposed": True
     }
     controlfn = basefn+".json"
-    logging.info(f"Writing control file {controlfn}")
+    logging.info(f"Writing GEMMA2 control file {controlfn}")
     with open(controlfn, 'w') as cf:
         json.dump(control, cf, indent=4)
 

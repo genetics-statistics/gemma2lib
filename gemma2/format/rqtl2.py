@@ -11,6 +11,8 @@ from gemma2.utility.system import memory_usage
 
 def load_control(fn: str) -> SimpleNamespace:
     """Load GEMMA2/Rqtl2 style control file"""
+    logging.info(f"Reading GEMMA2/Rqtl2 control {fn}")
+
     data = json.loads(open(fn).read())
     logging.info(data)
     control = SimpleNamespace(**data)
@@ -27,7 +29,7 @@ format is supported
     genotype_translate = control.genotypes
     assert hasattr(control, 'geno_compact'), "Expect geno_compact set in control file"
     assert markers>inds, f"markers ({markers}) should be larger than individuals ({inds})"
-    logging.info(f"Reading {fn}")
+    logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
     shape = (markers,inds)
     g = np.empty(shape, dtype=np.float32, order="F")
     print(g.shape)
@@ -89,6 +91,7 @@ format is supported
 def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
     count = 0
+    logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
     with open(fn,"r") as f:
         for line in f:
             count += 1
@@ -97,6 +100,7 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
 
 def iter_geno(fn: str, sep: str = "\t", header: bool = False):
     count = 0
+    logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
     with gzip.open(fn) as f:
         for line in f:
             count += 1

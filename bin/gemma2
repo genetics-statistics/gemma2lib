@@ -42,29 +42,37 @@ def gemma1_pass(bin,args):
 
 # -------------------------------------------------------------------------------
 # Grouping multi commands, see https://click.palletsprojects.com/en/7.x/commands/
-# @click.group(invoke_without_command=True)
-@click.group()
-@click.option('--outdir', type=str, default=".", show_default=True,
-              help="Specify output directory path")
+@click.group(invoke_without_command=True)
 @click.option('--validate/--no-validate', default=False, show_default=True,
               help="Validate input and output")
 @click.option('--debug', type=click.Choice(['RAM','STACK','ALL'],
                                            case_sensitive=False),
                                            default=None,
                                            help="Debug options")
-@click.option('-v','--verbose', type=int, default=1, show_default=True, count=True,
+@click.option('-v','--verbose', type=int, default=0, show_default=True, count=True,
               help="Verbosity levels 0-9")
 @click.option('--log',type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                                         case_sensitive=False),
-                                        default = 'WARNING',
+                                        default = 'INFO',
                                         show_default=True)
 @click.option('--low-mem',is_flag=True,help="Optimize for low(er) RAM")
+
+@click.option('-o','--out-prefix', type=click.Path(writable=True),
+              default="result", show_default=True,
+              help="Specify GEMMA2/Rqtl2 output file prefix (including path)")
+@click.option('--license',is_flag=True,
+              help="Show license: GEMMA is distributed under the GNU General Public GPLv3")
+
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
+def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,license):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
+    if license:
+        echo(open(BASEDIR+"/LICENSE").read())
+        sys.exit(0)
+
     ctx.ensure_object(dict)
     opts = {}
 
@@ -76,7 +84,7 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     if verbose > 1 and log == 'WARNING':
         log = 'INFO' # bump log level so we don't have to do that every time
     opts['log'] = log
-    opts['outdir'] = outdir
+    opts['out_prefix'] = out_prefix
     opts['low_mem'] = low_mem
     if log:
         logger = { 'DEBUG': logging.DEBUG,
@@ -89,7 +97,10 @@ def gemma2(ctx,outdir,debug,verbose,validate,log,low_mem):
     set_options(opts)
     ctx.obj['OPTIONS'] = get_options_ns()
     if verbose:
+        echo("VERBOSE")
         echo(opts)
+    if ctx.invoked_subcommand is None:
+        echo(ctx.get_help())
 
 # -------------------------------------------------------------------------------
 # The gemma1 command does a simple pass through without command line
@@ -122,7 +133,7 @@ def convert(ctx,plink,compression_level):
         convert_plink(plink,compression_level)
 
 # -------------------------------------------------------------------------------
-@gemma2.command(help="Convert from GEMMA2/Rqtl2 format to BIMBAM")
+@gemma2.command(help="Export GEMMA2/Rqtl2 format to BIMBAM (internal function)")
 # @click.argument
 #  -bfile    [prefix]        specify input PLINK binary ped file prefix.
 #           requires: *.fam, *.bim and *.bed files
@@ -130,7 +141,7 @@ def convert(ctx,plink,compression_level):
               help="Convert GEMMA2 format to BIMBAM (requires control file)")
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),
               required=True,
-              help="GEMMA2 control file (JSON)")
+              help="GEMMA2 control file (JSON format)")
 @click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
 @click.pass_context
 
@@ -142,10 +153,12 @@ def export(ctx,compression_level,bimbam,control):
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")
-@click.pass_context
-
-def filter(ctx):
-    echo('- Filter data')
+@click.option('-p','--missing-phenotypes',is_flag=True,help="Output")
+@click.option('--control','-c',type=click.Path(exists=True, readable=True),
+              required=True,
+              help="GEMMA2 control file (JSON)")
+def filter(pheno_missing,control):
+    echo('Filter data')
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validation commands")
