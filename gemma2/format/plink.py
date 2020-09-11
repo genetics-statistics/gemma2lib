@@ -80,9 +80,7 @@ def convert_plink(path: str):
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
 
     import gzip
-    # content = b"Lots of content here"
     with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
-    # with open(genofn, "w") as f:
         f.write("marker".encode())
         for i in range(inds):
             f.write(f"\t{i+1}".encode())
