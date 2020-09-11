@@ -33,12 +33,37 @@ def convert_bimbam(genofn: str, phenofn: str):
     """Read BIMBAM and output to Rqtl2"""
     options = get_options_ns()
     path = options.out_prefix
+
+    basefn = path
+
+    logging.info(f"Reading BIMBAM phenofile {phenofn}")
+    outphenofn = basefn+"_pheno.tsv"
+    in_header = True
+    p_inds = 0
+    phenos = None
+    with open(phenofn,"r") as f:
+        with safe_write_open(outphenofn,"Writing GEMMA2 pheno file") as out:
+            for line in f:
+                ps = line.strip().split("\t")
+                if not phenos:
+                    phenos = len(ps)
+                if in_header:
+                    out.write("id\t")
+                    out.write("\t".join([f"{i+1}" for i in range(phenos)]))
+                    in_header = False
+                    out.write("\n")
+                p_inds += 1
+                out.write(f"{p_inds}\t")
+                out.write("\t".join(ps))
+                out.write("\n")
+
+    inds = None
+    markers = 0
     outgenofn = path+"_geno.txt.gz"
     logging.info(f"Reading BIMBAM genofile {genofn}")
     logging.info(f"Writing GEMMA2/Rqtl2 genofile {outgenofn}")
     translate = { "1": "A", "0": "B", "0.5": "H" } # FIXME hard coded
-    inds = None
-    markers = 0
+
     import gzip
     with gzip.open(outgenofn, mode="wb") as out:
         with gzip.open(genofn, mode='r') as f:
@@ -59,7 +84,9 @@ def convert_bimbam(genofn: str, phenofn: str):
                     logging.info(f"{inds} individuals")
 
     logging.info(f"{markers} markers")
-    basefn = path
+    logging.info(f"{phenos} phenotypes")
+    assert inds == p_inds, f"Individuals not matching {inds} != {p_inds}"
+
     # Write control file last
     import json
     control = {
@@ -70,9 +97,9 @@ def convert_bimbam(genofn: str, phenofn: str):
         "comment.char": "#",
         "individuals": inds,
         "markers": markers,
-        # "phenotypes": phenos,
+        "phenotypes": phenos,
         "geno": basename(genofn),
-        # "pheno": basename(phenofn),
+        "pheno": basename(phenofn),
         "alleles": ["A", "B", "H"],
         "genotypes": {
           "A": 1,
