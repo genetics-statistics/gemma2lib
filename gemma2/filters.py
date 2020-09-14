@@ -79,7 +79,7 @@ def filter(controlfn: str, pheno_column: int):
     ids = ids[1:] # strip leading column
     idx = idx[1:]
     with safe_geno_write_open() as g:
-        g.write("\t".join(["marker"]+ids[1:]).encode())
+        g.write("\t".join(["marker"]+ids).encode())
         g.write("\n".encode())
         for marker,genos in iter_geno(path+"/"+control.geno, header = False):
             gs = []
@@ -101,7 +101,7 @@ def filter(controlfn: str, pheno_column: int):
         "individuals": inds,
         "markers": control.markers,
         "phenotypes": control.phenotypes,
-        "geno": opts.out_prefix+"_geno.txt",
+        "geno": opts.out_prefix+"_geno.txt.gz",
         "pheno": opts.out_prefix+"_pheno.txt",
         "alleles": ["A", "B", "H"],
         "genotypes": {

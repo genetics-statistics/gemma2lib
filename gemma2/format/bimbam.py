@@ -129,7 +129,7 @@ def write_bimbam(controlfn):
     if path:
         base = path + "/" + base
 
-    phenofn = base+"_bimbam.txt"
+    phenofn = control.pheno+"_bimbam.txt"
     logging.info(f"Writing BIMBAM pheno file {phenofn}")
     with open(phenofn,"w") as f:
         for p in iter_pheno(control.pheno, sep=control.sep, header=False):
@@ -140,13 +140,15 @@ def write_bimbam(controlfn):
     base = splitext(splitext(control.geno)[0])[0]
     if path:
         base = path + "/" + base
-    genofn = base+"_bimbam.txt.gz"
+    genofn = control.geno+"_bimbam.txt.gz"
     logging.info(f"Writing BIMBAM geno file {genofn}")
     genotype_translate = control.genotypes
+    genoA = control.alleles[0]
+    genoB = control.alleles[1]
     with gzip.open(genofn, mode='wb', compresslevel=options.compression_level) as f:
         # f.write("marker".encode())
         for marker,genotypes in iter_geno(control.geno, sep=control.geno_sep, header=False):
             f.write(marker.encode())
-            f.write(",-,-,".encode())
+            f.write(f",{genoA},{genoB},".encode())
             f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())
             f.write("\n".encode())
