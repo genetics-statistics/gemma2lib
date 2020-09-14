@@ -64,6 +64,7 @@ def convert_bimbam(genofn: str, phenofn: str):
     logging.info(f"Writing GEMMA2/Rqtl2 genofile {outgenofn}")
     translate = { "1": "A", "0": "B", "0.5": "H" } # FIXME hard coded
 
+    in_header = True
     import gzip
     with gzip.open(outgenofn, mode="wb") as out:
         with gzip.open(genofn, mode='r') as f:
@@ -73,7 +74,13 @@ def convert_bimbam(genofn: str, phenofn: str):
                 gs = l.split("\t")
                 if len(gs) == 1:
                     gs = l.split(", ")
-                    assert len(gs) != 1
+                genos = len(gs)-3
+                assert genos != 1
+                if in_header:
+                    out.write("marker\t".encode())
+                    out.write("\t".join([f"{i+1}" for i in range(genos)]).encode())
+                    in_header = False
+                    out.write("\n".encode())
                 out.write(gs[0].encode())
                 out.write("\t".encode())
                 # print(gs[3:])
@@ -93,18 +100,18 @@ def convert_bimbam(genofn: str, phenofn: str):
         "description": basename(path),
         "crosstype": None,   # we are not assuming a cross for GEMMA
         "sep": "\t",
-        "na.strings": ["-", "NA"],
+        "na.strings": ["-"],
         "comment.char": "#",
         "individuals": inds,
         "markers": markers,
         "phenotypes": phenos,
-        "geno": basename(genofn),
-        "pheno": basename(phenofn),
+        "geno": basename(outgenofn),
+        "pheno": basename(outphenofn),
         "alleles": ["A", "B", "H"],
         "genotypes": {
-          "A": 1,
-          "H": 2,
-          "B": 3
+          "A": 0,
+          "H": 1,
+          "B": 2
         },
         "geno_sep": False,
         "geno_transposed": True
@@ -128,17 +135,18 @@ def write_bimbam(controlfn):
         for p in iter_pheno(control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
             f.write("\t".join(p[1:]))
+            f.write("\n")
 
     base = splitext(splitext(control.geno)[0])[0]
     if path:
         base = path + "/" + base
     genofn = base+"_bimbam.txt.gz"
     logging.info(f"Writing BIMBAM geno file {genofn}")
-    genotype_translate = { "A": "1", "B": "0", "H": "2"}
+    genotype_translate = control.genotypes
     with gzip.open(genofn, mode='wb', compresslevel=options.compression_level) as f:
         # f.write("marker".encode())
         for marker,genotypes in iter_geno(control.geno, sep=control.geno_sep, header=False):
             f.write(marker.encode())
-            f.write(" - - ".encode())
-            f.write(" ".join([genotype_translate[v] for v in genotypes]).encode())
+            f.write(",-,-,".encode())
+            f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())
             f.write("\n".encode())

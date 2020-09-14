@@ -40,6 +40,24 @@ class safe_geno_write_open(object):
         logging.info(f"Writing GEMMA2/Rqtl2 geno {self.file_name}")
         self.file.close()
 
+import json
+
+class safe_control_write_open(object):
+    def __init__(self):
+        opts = get_options_ns()
+        self.file_name = opts.out_prefix+".json"
+
+    def __enter__(self):
+        if isfile(self.file_name):
+            raise Exception(f"ERROR: file {self.file_name} already exists")
+        self.file = open(self.file_name, 'w')
+        return self.file
+
+    def __exit__(self, type, value, tb):
+        logging.info(f"Writing GEMMA2/Rqtl2 control {self.file_name}")
+        self.file.close()
+
+
 def filter(controlfn: str, pheno_column: int):
     control = load_control(controlfn)
     print(control)
@@ -71,3 +89,28 @@ def filter(controlfn: str, pheno_column: int):
             g.write("\t".encode())
             g.write("".join(gs).encode())
             g.write("\n".encode())
+    inds = len(idx)
+    # Write control file last
+    opts = get_options_ns()
+    control = {
+        "description": basename(path),
+        "crosstype": None,   # we are not assuming a cross for GEMMA
+        "sep": "\t",
+        "na.strings": ["-"],
+        "comment.char": "#",
+        "individuals": inds,
+        "markers": control.markers,
+        "phenotypes": control.phenotypes,
+        "geno": opts.out_prefix+"_geno.txt",
+        "pheno": opts.out_prefix+"_pheno.txt",
+        "alleles": ["A", "B", "H"],
+        "genotypes": {
+          "A": 0,
+          "H": 1,
+          "B": 2
+        },
+        "geno_sep": False,
+        "geno_transposed": True
+    }
+    with safe_control_write_open() as controlf:
+        json.dump(control, controlf, indent=4)

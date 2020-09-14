@@ -99,7 +99,7 @@ def convert_plink(path: str):
         "description": basename(path),
         "crosstype": None,   # we are not assuming a cross for GEMMA
         "sep": "\t",
-        "na.strings": ["-", "NA"],
+        "na.strings": ["-"],
         "comment.char": "#",
         "individuals": inds,
         "markers": markers,
@@ -107,10 +107,10 @@ def convert_plink(path: str):
         "geno": basename(genofn),
         "pheno": basename(phenofn),
         "alleles": ["A", "B", "H"],
-        "genotypes": {
-          "A": 1,
-          "H": 2,
-          "B": 3
+        "genotypes": { # minor allele dosage
+            "A": 0,
+            "H": 1,
+            "B": 2
         },
         "geno_sep": False,
         "geno_transposed": True
