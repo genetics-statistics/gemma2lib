@@ -109,3 +109,4 @@ def write_bimbam(controlfn):
             f.write(f",{genoA},{genoB},".encode())
             f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())
             f.write("\n".encode())
+    return genofn, phenofn

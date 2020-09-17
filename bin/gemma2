@@ -63,12 +63,13 @@ def gemma1_pass(bin,args):
               default="result", show_default=True,
               help="Specify GEMMA2/Rqtl2 output file prefix (including path)")
 @click.option('--compression-level', type=int, default=7, show_default=True, help="Compression level for gz output")
+@click.option('--gemma1-bin', type=str, default="gemma", envvar='GEMMA1_BIN', show_default=True, help="Path or binary name pointing to GEMMAv1 (alternatively set env GEMMA1_BIN)")
 @click.option('--license',is_flag=True,
               help="Show license: GEMMA is distributed under the GNU General Public GPLv3")
 
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compression_level,license):
+def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compression_level,gemma1_bin,license):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
@@ -89,6 +90,7 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compressi
     opts['validate'] = validate
     opts['log'] = log
     opts['out_prefix'] = out_prefix
+    opts['gemma1_bin'] = gemma1_bin
     opts['compression_level'] = compression_level
     opts['low_mem'] = low_mem
     opts['overwrite'] = overwrite
@@ -114,7 +116,6 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compressi
 # binary
 @gemma2.command(context_settings=dict(ignore_unknown_options=True),
                 help="Raw GEMMAv1 pass through mode")
-@click.option('--bin', type=str, default="gemma", envvar='GEMMA1_BIN', show_default=True, help="Path or binary name pointing to GEMMAv1 (alternatively set GEMMA1_BIN)")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 
 def gemma1(bin,args):
