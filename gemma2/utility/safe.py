@@ -5,8 +5,6 @@ from gemma2.utility.options import get_options_ns
 
 # Can not overwrite existing file
 import gzip
-
-
 import json
 
 class control_write_open(object):

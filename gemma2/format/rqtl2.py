@@ -21,6 +21,7 @@ def load_control(fn: str) -> SimpleNamespace:
         data["na.strings"] = ["NA","nan","-"]
 
     data["na_strings"] = data["na.strings"]
+    data["name"] = fn
     logging.info(data)
     control = SimpleNamespace(**data)
     return control
@@ -48,7 +49,8 @@ def write_control(inds,markers,phenotypes,genofn,phenofn):
           "B": 2
         },
         "geno_sep": False,
-        "geno_transposed": True
+        "geno_transposed": True,
+        "geno_compact": True
     }
     with safe.control_write_open() as controlf:
         json.dump(control, controlf, indent=4)

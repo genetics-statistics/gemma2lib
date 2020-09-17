@@ -86,10 +86,10 @@ def write_bimbam(controlfn):
     if path:
         base = path + "/" + base
 
-    phenofn = control.pheno+"_bimbam.txt"
+    phenofn = options.out_prefix+control.pheno+"_bimbam.txt"
     logging.info(f"Writing BIMBAM pheno file {phenofn}")
     with open(phenofn,"w") as f:
-        for p in iter_pheno(control.pheno, sep=control.sep, header=False):
+        for p in iter_pheno(path+"/"+control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
             f.write("\t".join(p[1:]))
             f.write("\n")
@@ -97,7 +97,7 @@ def write_bimbam(controlfn):
     base = splitext(splitext(control.geno)[0])[0]
     if path:
         base = path + "/" + base
-    genofn = control.geno+"_bimbam.txt.gz"
+    genofn = options.out_prefix+control.geno+"_bimbam.txt.gz"
     logging.info(f"Writing BIMBAM geno file {genofn}")
     genotype_translate = control.genotypes
     genoA = control.alleles[0]
