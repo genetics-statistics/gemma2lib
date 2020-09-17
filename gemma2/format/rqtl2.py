@@ -6,8 +6,11 @@ import logging
 import numpy as np
 import sys
 
+from os.path import dirname, basename, isfile
 from types import SimpleNamespace
+from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
+import gemma2.utility.safe as safe
 
 def load_control(fn: str) -> SimpleNamespace:
     """Load GEMMA2/Rqtl2 style control file"""
@@ -21,6 +24,33 @@ def load_control(fn: str) -> SimpleNamespace:
     logging.info(data)
     control = SimpleNamespace(**data)
     return control
+
+def write_control(descr,inds,markers,phenotypes,genofn,phenofn):
+    gnfn = basename(genofn)
+    phfn = basename(phenofn)
+    control = {
+        "description": descr,
+        "crosstype": None,   # we are not assuming a cross for GEMMA
+        "sep": "\t",
+        "na.strings": ["-"],
+        "comment.char": "#",
+        "individuals": inds,
+        "markers": markers,
+        "phenotypes": phenotypes,
+        "geno": gnfn,
+        "pheno": phfn,
+        "alleles": ["A", "B", "H"],
+        "genotypes": {
+          "A": 0,
+          "H": 1,
+          "B": 2
+        },
+        "geno_sep": False,
+        "geno_transposed": True
+    }
+    with safe.control_write_open() as controlf:
+        json.dump(control, controlf, indent=4)
+
 
 def load_geno(control):
     """GEMMA2/Rqtl2 eager loading of GENO file. Currently only the compact

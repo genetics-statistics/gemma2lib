@@ -24,7 +24,8 @@ import gemma2 # you may need to add source to PYTHONPATH
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.format.plink import convert_plink
 from gemma2.format.bimbam import convert_bimbam,write_bimbam
-from gemma2.filters import filter
+from gemma2.filters import filters
+from gemma2.grm import compute_kinship
 from gemma2.utility.options import set_options, get_options_ns
 
 second = ["gwa"]
@@ -57,7 +58,7 @@ def gemma1_pass(bin,args):
                                         default = 'INFO',
                                         show_default=True)
 @click.option('--low-mem',is_flag=True,help="Optimize for low(er) RAM")
-
+@click.option('--overwrite',is_flag=True,help="Overwrite existing output files (unsafe)")
 @click.option('-o','--out-prefix', type=click.Path(writable=True),
               default="result", show_default=True,
               help="Specify GEMMA2/Rqtl2 output file prefix (including path)")
@@ -67,7 +68,7 @@ def gemma1_pass(bin,args):
 
 # @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,compression_level,license):
+def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compression_level,license):
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
@@ -87,6 +88,7 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,compression_level,l
     opts['out_prefix'] = out_prefix
     opts['compression_level'] = compression_level
     opts['low_mem'] = low_mem
+    opts['overwrite'] = overwrite
     if log:
         logger = { 'DEBUG': logging.DEBUG,
                    'INFO': logging.INFO,
@@ -158,8 +160,8 @@ def export(ctx,bimbam,control):
               help="Filter on phenotype column")
 @click.pass_context
 
-def filters(ctx,control,pheno_column):
-    filter(control,pheno_column)
+def filter(ctx,control,pheno_column):
+    filters(control,pheno_column)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validation commands")
@@ -171,15 +173,20 @@ def validate(ctx):
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
 @click.option('--control','-c',type=click.Path(exists=True, readable=True),required=True,help="GEMMA2 control file (JSON)")
+@click.option('--impl',type=click.Choice(['default', 'gemma1'],
+                                        case_sensitive=False),
+                                        default = 'default',
+                                        # show_default=True,
+                                        help="Algorithmic implementation for computing GRM")
+@click.option('--loco',is_flag=True,help="Leave one chromosome out (LOCO)")
 @click.pass_context
 
-def grm(ctx,control):
+def grm(ctx,control,impl,loco):
     opts = get_options_ns()
     if opts.debug:
         echo('- Kinship/Genetic Relationship Matrix (GRM) command')
     c = load_control(control)
-    G = load_geno(c)
-    # K = compute_kinship(G)
+    K = compute_kinship(c,impl,loco)
 
 @gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--iterations', default=1_000)
@@ -191,7 +198,7 @@ def lmm(ctx,iterations):
 gemma2.add_command(convert)
 gemma2.add_command(export)
 gemma2.add_command(gemma1)
-gemma2.add_command(filters)
+gemma2.add_command(filter)
 gemma2.add_command(grm)
 gemma2.add_command(lmm)
 
