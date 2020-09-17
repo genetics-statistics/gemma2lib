@@ -7,27 +7,12 @@ import numpy as np
 from os.path import dirname, basename, splitext, isfile
 import sys
 
+import gemma2.utility.safe as safe
 from types import SimpleNamespace
 from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
 
-from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno
-
-# Can not overwrite existing file
-class safe_write_open(object):
-    def __init__(self, file_name, msg):
-        self.file_name = file_name
-        self.msg = msg
-
-    def __enter__(self):
-        if isfile(self.file_name):
-            raise Exception(f"ERROR: {self.file_name} already exists")
-        self.file = open(self.file_name, 'w')
-        return self.file
-
-    def __exit__(self, type, value, tb):
-        logging.info(f"{self.msg} {self.file_name}")
-        self.file.close()
+from gemma2.format.rqtl2 import load_control, write_control, iter_pheno, iter_geno
 
 def convert_bimbam(genofn: str, phenofn: str):
     """Read BIMBAM and output to Rqtl2"""
@@ -37,36 +22,33 @@ def convert_bimbam(genofn: str, phenofn: str):
     basefn = path
 
     logging.info(f"Reading BIMBAM phenofile {phenofn}")
-    outphenofn = basefn+"_pheno.tsv"
     in_header = True
     p_inds = 0
     phenos = None
     with open(phenofn,"r") as f:
-        with safe_write_open(outphenofn,"Writing GEMMA2 pheno file") as out:
+        with safe.pheno_write_open() as out:
+            outphenofn = out.name
             for line in f:
                 ps = line.strip().split("\t")
                 if not phenos:
                     phenos = len(ps)
                 if in_header:
-                    out.write("id\t")
-                    out.write("\t".join([f"{i+1}" for i in range(phenos)]))
+                    out.write("id\t".encode())
+                    out.write("\t".join([f"{i+1}" for i in range(phenos)]).encode())
                     in_header = False
-                    out.write("\n")
+                    out.write("\n".encode())
                 p_inds += 1
-                out.write(f"{p_inds}\t")
-                out.write("\t".join(ps))
-                out.write("\n")
+                out.write(f"{p_inds}\t".encode())
+                out.write("\t".join(ps).encode())
+                out.write("\n".encode())
 
     inds = None
     markers = 0
-    outgenofn = path+"_geno.txt.gz"
-    logging.info(f"Reading BIMBAM genofile {genofn}")
-    logging.info(f"Writing GEMMA2/Rqtl2 genofile {outgenofn}")
     translate = { "1": "A", "0": "B", "0.5": "H" } # FIXME hard coded
 
     in_header = True
-    import gzip
-    with gzip.open(outgenofn, mode="wb") as out:
+    with safe.geno_write_open() as out:
+        outgenofn = out.name
         with gzip.open(genofn, mode='r') as f:
             for line in f:
                 markers += 1
@@ -93,32 +75,7 @@ def convert_bimbam(genofn: str, phenofn: str):
     logging.info(f"{markers} markers")
     logging.info(f"{phenos} phenotypes")
     assert inds == p_inds, f"Individuals not matching {inds} != {p_inds}"
-
-    # Write control file last
-    import json
-    control = {
-        "description": basename(path),
-        "crosstype": None,   # we are not assuming a cross for GEMMA
-        "sep": "\t",
-        "na.strings": ["-"],
-        "comment.char": "#",
-        "individuals": inds,
-        "markers": markers,
-        "phenotypes": phenos,
-        "geno": basename(outgenofn),
-        "pheno": basename(outphenofn),
-        "alleles": ["A", "B", "H"],
-        "genotypes": {
-          "A": 0,
-          "H": 1,
-          "B": 2
-        },
-        "geno_sep": False,
-        "geno_transposed": True
-    }
-    controlfn = basefn+".json"
-    with safe_write_open(controlfn,"Writing GEMMA2 control file") as f:
-        json.dump(control, f, indent=4)
+    write_control("bimbam import",inds,markers,phenos,outgenofn,outphenofn)
 
 def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
