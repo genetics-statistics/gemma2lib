@@ -4,3 +4,4 @@ geno.txt
 output
 *.tab
 *.gz
+result*
