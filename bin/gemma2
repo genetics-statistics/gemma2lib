@@ -72,12 +72,15 @@ def gemma2(ctx,debug,verbose,validate,log,low_mem,out_prefix,overwrite,compressi
     # if not ctx.invoked_subcommand:
     #   echo("Passing on to gemma1!!")
     #   gemma1_pass(list(args))
+
+
     if license:
         echo(open(BASEDIR+"/LICENSE").read())
         sys.exit(0)
 
     ctx.ensure_object(dict)
     opts = {}
+    opts['args'] = sys.argv
 
     opts['debug'] = debug
     global dump_stacktrace
@@ -211,5 +214,5 @@ except Exception:
     if dump_stacktrace:
         traceback.print_exc()
     else:
-        traceback.print_exc(limit=-1)
+        traceback.print_exc(limit=-2)
         echo("Use switch --debug STACK to get a full stack trace")

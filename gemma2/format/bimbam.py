@@ -75,7 +75,7 @@ def convert_bimbam(genofn: str, phenofn: str):
     logging.info(f"{markers} markers")
     logging.info(f"{phenos} phenotypes")
     assert inds == p_inds, f"Individuals not matching {inds} != {p_inds}"
-    write_control("bimbam import",inds,markers,phenos,outgenofn,outphenofn)
+    write_control(inds,markers,phenos,outgenofn,outphenofn)
 
 def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""

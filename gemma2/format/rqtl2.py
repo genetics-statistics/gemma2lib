@@ -25,9 +25,11 @@ def load_control(fn: str) -> SimpleNamespace:
     control = SimpleNamespace(**data)
     return control
 
-def write_control(descr,inds,markers,phenotypes,genofn,phenofn):
+def write_control(inds,markers,phenotypes,genofn,phenofn):
+    opts = get_options_ns()
     gnfn = basename(genofn)
     phfn = basename(phenofn)
+    descr = " ".join(opts.args)
     control = {
         "description": descr,
         "crosstype": None,   # we are not assuming a cross for GEMMA
@@ -122,7 +124,7 @@ format is supported
     print(K)
     memory_usage()
 
-def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
+def iter_pheno_txt(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
     count = 0
     logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
@@ -131,6 +133,16 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
             count += 1
             if header or count > 1:
                 yield line.strip().split(sep)
+
+def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
+    """Iter of GEMMA2 pheno file. Returns by line"""
+    count = 0
+    logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
+    with gzip.open(fn,"r") as f:
+        for line in f:
+            count += 1
+            if header or count > 1:
+                yield line.decode().strip().split(sep)
 
 def iter_geno(fn: str, sep: str = "\t", header: bool = False):
     count = 0
