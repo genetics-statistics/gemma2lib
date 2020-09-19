@@ -5,6 +5,7 @@ import gzip
 import logging
 import numpy as np
 from os.path import dirname, basename, splitext, isfile
+import re
 import sys
 
 import gemma2.utility.safe as safe
@@ -27,7 +28,9 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
             outgmapfn = out.name
             out.write(f"marker,chr,pos\n".encode())
             for line in f:
-                marker,pos,chr = line.strip().split("\t")
+                list = re.split('[,\t\s]+',line.strip())
+                # print(list)
+                marker,pos,chr = list
                 out.write(f"{marker}\t{chr}\t{pos}\n".encode())
 
     logging.info(f"Reading BIMBAM phenofile {phenofn}")
@@ -100,7 +103,7 @@ def write_bimbam(controlfn):
     phenofn = options.out_prefix+control.pheno+"_bimbam.txt"
     logging.info(f"Writing BIMBAM pheno file {phenofn}")
     with open(phenofn,"w") as f:
-        for p in iter_pheno(path+"/"+control.pheno, sep=control.sep, header=False):
+        for p in iter_pheno(control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
             f.write("\t".join(p[1:]))
             f.write("\n")

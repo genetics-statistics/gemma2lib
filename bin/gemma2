@@ -21,7 +21,7 @@ print("GEMMA2",VERSION.strip(),"Genome-wide efficient 'exact' mixed-model analys
 
 sys.path.append(BASEDIR)
 import gemma2 # you may need to add source to PYTHONPATH
-from gemma2.format.rqtl2 import load_control, load_geno
+from gemma2.format.rqtl2 import load_control
 from gemma2.format.plink import convert_plink
 from gemma2.format.bimbam import convert_bimbam,write_bimbam
 from gemma2.filters import filters

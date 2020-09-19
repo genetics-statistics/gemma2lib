@@ -42,4 +42,4 @@ def filters(controlfn: str, pheno_column: int):
         genofn = g.name
     inds = len(idx)
     # Write control file last
-    write_control(inds,control.markers,control.phenotypes,genofn,phenofn)
+    write_control(inds,control.markers,control.phenotypes,genofn,phenofn,control.gmap)

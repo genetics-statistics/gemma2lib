@@ -58,6 +58,10 @@ def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
     with safe.control_write_open() as controlf:
         json.dump(control, controlf, indent=4)
 
+def load_gmap(control):
+    """GEMMA2/Rqtl2 eager loading of gmap file"""
+    fn = control.gmap
+    logging.info(f"Reading GEMMA2/Rqtl2 gmap {fn}")
 
 def load_geno(control):
     """GEMMA2/Rqtl2 eager loading of GENO file. Currently only the compact
@@ -73,8 +77,7 @@ format is supported
     logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
     shape = (markers,inds)
     g = np.empty(shape, dtype=np.float32, order="F")
-    print(g.shape)
-    # sys.exit(1)
+    # print(g.shape)
     in_header = True
     with gzip.open(fn) as f:
         line = f.readline()
@@ -157,9 +160,9 @@ def iter_geno(fn: str, sep: str = "\t", header: bool = False):
             count += 1
             if header and count==1:
                 h = line.decode()
-                hs = h.strip().split("\t")
+                hs = h.strip().split(sep)
                 yield hs
             if count>1:
                 l = line.decode()
-                marker,genotypes = l.strip().split("\t",2)
+                marker,genotypes = l.strip().split(sep,2)
                 yield marker,[char for char in genotypes]
