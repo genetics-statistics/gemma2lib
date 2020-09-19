@@ -26,14 +26,16 @@ def load_control(fn: str) -> SimpleNamespace:
     control = SimpleNamespace(**data)
     return control
 
-def write_control(inds,markers,phenotypes,genofn,phenofn):
+def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
     opts = get_options_ns()
     gnfn = basename(genofn)
     phfn = basename(phenofn)
+    gmapfn = basename(gmapfn)
     descr = " ".join(opts.args)
+    Null = None
     control = {
         "description": descr,
-        "crosstype": None,   # we are not assuming a cross for GEMMA
+        "crosstype": Null,   # we are not assuming a cross for GEMMA
         "sep": "\t",
         "na.strings": ["-"],
         "comment.char": "#",
@@ -42,6 +44,7 @@ def write_control(inds,markers,phenotypes,genofn,phenofn):
         "phenotypes": phenotypes,
         "geno": gnfn,
         "pheno": phfn,
+        "gmap": gmapfn,
         "alleles": ["A", "B", "H"],
         "genotypes": {
           "A": 0,

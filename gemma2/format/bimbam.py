@@ -14,12 +14,21 @@ from gemma2.utility.system import memory_usage
 
 from gemma2.format.rqtl2 import load_control, write_control, iter_pheno, iter_geno
 
-def convert_bimbam(genofn: str, phenofn: str):
+def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     """Read BIMBAM and output to Rqtl2"""
     options = get_options_ns()
     path = options.out_prefix
 
     basefn = path
+
+    logging.info(f"Reading BIMBAM marker/SNP {annofn}")
+    with open(annofn,"r") as f:
+        with safe.gmap_write_open() as out:
+            outgmapfn = out.name
+            out.write(f"marker,chr,pos\n")
+            for line in f:
+                marker,pos,chr = line.strip().split("\t")
+                out.write(f"{marker}\t{chr}\t{pos}\n")
 
     logging.info(f"Reading BIMBAM phenofile {phenofn}")
     in_header = True
@@ -72,10 +81,12 @@ def convert_bimbam(genofn: str, phenofn: str):
                     inds = len(gs)-3
                     logging.info(f"{inds} individuals")
 
+
+
     logging.info(f"{markers} markers")
     logging.info(f"{phenos} phenotypes")
     assert inds == p_inds, f"Individuals not matching {inds} != {p_inds}"
-    write_control(inds,markers,phenos,outgenofn,outphenofn)
+    write_control(inds,markers,phenos,outgenofn,outphenofn,outgmapfn)
 
 def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
@@ -103,7 +114,6 @@ def write_bimbam(controlfn):
     genoA = control.alleles[0]
     genoB = control.alleles[1]
     with gzip.open(genofn, mode='wb', compresslevel=options.compression_level) as f:
-        # f.write("marker".encode())
         for marker,genotypes in iter_geno(control.geno, sep=control.geno_sep, header=False):
             f.write(marker.encode())
             f.write(f",{genoA},{genoB},".encode())

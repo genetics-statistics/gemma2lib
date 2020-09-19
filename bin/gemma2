@@ -132,15 +132,17 @@ def gemma1(bin,args):
               help="BIMBAM geno file")
 @click.option('--pheno','-p',type=click.Path(exists=True, readable=True),
               help="BIMBAM pheno file")
+@click.option('--anno','-a',type=click.Path(exists=True, readable=True),
+              help="BIMBAM marker or SNP annotation file")
 @click.pass_context
 
-def convert(ctx,plink,bimbam,geno,pheno):
+def convert(ctx,plink,bimbam,geno,pheno,anno):
     if plink:
         echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
         convert_plink(plink)
     if bimbam:
         echo("Converting from BIMBAM to GEMMA/Rqtl2 format...")
-        convert_bimbam(geno,pheno)
+        convert_bimbam(geno,pheno,anno)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Export GEMMA2/Rqtl2 format to BIMBAM (internal function)")
