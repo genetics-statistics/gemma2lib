@@ -3,26 +3,13 @@ from os.path import dirname, basename, isfile
 import sys
 
 from gemma2.utility.options import get_options_ns
+import gemma2.utility.safe as safe
 from pandas_plink import read_plink
 from gemma2.utility.system import memory_usage
 
-# Can not overwrite existing file
-class safe_write_open(object):
-    def __init__(self, file_name, msg):
-        self.file_name = file_name
-        self.msg = msg
+from gemma2.format.rqtl2 import write_control
 
-    def __enter__(self):
-        if isfile(self.file_name):
-            raise Exception(f"ERROR: {self.file_name} already exists")
-        self.file = open(self.file_name, 'w')
-        return self.file
-
-    def __exit__(self, type, value, tb):
-        logging.info(f"{self.msg} {self.file_name}")
-        self.file.close()
-
-def convert_plink(path: str):
+def convert_plink(path: str, annofn: str):
     """Convert PLINK format to GEMMA2"""
     def mknum(v):
         if v != v:
@@ -60,22 +47,32 @@ def convert_plink(path: str):
     basefn = options.out_prefix
     memory_usage("plink pandas")
 
+    logging.info(f"Reading BIMBAM marker/SNP {annofn}")
+    with open(annofn,"r") as f:
+        with safe.gmap_write_open() as out:
+            outgmapfn = out.name
+            out.write(f"marker,chr,pos\n".encode())
+            for line in f:
+                marker,pos,chr,rest = line.strip().split("\t")
+                out.write(f"{marker}\t{chr}\t{pos}\n".encode())
+
     phenofn = basefn+"_pheno.tsv"
     p = fam.to_numpy()
-    with safe_write_open(phenofn,"Writing GEMMA2 pheno file") as f:
-        f.write("id")
+    with safe.pheno_write_open() as f:
+        outphenofn = f.name
+        f.write("id".encode())
         for c in fam.columns.values:
             if c != "i": # we skip the last i column
-                f.write(f"\t{c}")
-        f.write("\n")
+                f.write(f"\t{c}".encode())
+        f.write("\n".encode())
         for j in range(inds):
-            f.write(str(j+1)+"\t")
-            f.write("\t".join([mknum(v) for v in p[j,:-1]])) # except for i column
-            f.write("\n")
+            f.write((str(j+1)+"\t").encode())
+            f.write("\t".join([mknum(v) for v in p[j,:-1]]).encode()) # except for i column
+            f.write("\n".encode())
 
     memory_usage("plink pheno")
 
-    genofn = basefn+"_geno.tsv.gz"
+    genofn = basefn+"_geno.txt.gz"
     logging.info(f"Writing GEMMA2 geno file {genofn}")
     translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
 
@@ -92,31 +89,9 @@ def convert_plink(path: str):
                     f.write(f"{translate[m[j,i]]}".encode())
             else:
                 f.write("".join([ translate[item] for item in m[j] ]).encode())
+        outgenofn = genofn
 
-    # Write control file last
-    import json
-    control = {
-        "description": basename(path),
-        "crosstype": None,   # we are not assuming a cross for GEMMA
-        "sep": "\t",
-        "na.strings": ["-"],
-        "comment.char": "#",
-        "individuals": inds,
-        "markers": markers,
-        "phenotypes": phenos,
-        "geno": basename(genofn),
-        "pheno": basename(phenofn),
-        "alleles": ["A", "B", "H"],
-        "genotypes": { # minor allele dosage
-            "A": 0,
-            "H": 1,
-            "B": 2
-        },
-        "geno_sep": False,
-        "geno_transposed": True
-    }
-    controlfn = basefn+".json"
-    with safe_write_open(controlfn,"Writing GEMMA2 control file") as f:
-        json.dump(control, f, indent=4)
+    write_control(inds,markers,phenos,outgenofn,outphenofn,outgmapfn)
+
 
     memory_usage("plink geno")

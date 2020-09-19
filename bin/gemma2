@@ -139,7 +139,7 @@ def gemma1(bin,args):
 def convert(ctx,plink,bimbam,geno,pheno,anno):
     if plink:
         echo("Converting from PLINK to GEMMA2/Rqtl2 format...")
-        convert_plink(plink)
+        convert_plink(plink,anno)
     if bimbam:
         echo("Converting from BIMBAM to GEMMA/Rqtl2 format...")
         convert_bimbam(geno,pheno,anno)

@@ -25,10 +25,10 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     with open(annofn,"r") as f:
         with safe.gmap_write_open() as out:
             outgmapfn = out.name
-            out.write(f"marker,chr,pos\n")
+            out.write(f"marker,chr,pos\n".encode())
             for line in f:
                 marker,pos,chr = line.strip().split("\t")
-                out.write(f"{marker}\t{chr}\t{pos}\n")
+                out.write(f"{marker}\t{chr}\t{pos}\n".encode())
 
     logging.info(f"Reading BIMBAM phenofile {phenofn}")
     in_header = True
