@@ -7,28 +7,34 @@ from gemma2.utility.options import get_options_ns
 import gzip
 import json
 
-class control_write_open(object):
-    def __init__(self):
+class write_open:
+    def __init__(self, file_type: str, postfix: str = None):
+        """file_type is control"""
+        self.file_type = file_type
         opts = get_options_ns()
         self.opts = opts
-        self.file_name = opts.out_prefix+".json"
+        self.file_name = opts.out_prefix
+        if postfix:
+            self.file_name += postfix
+        self.compression_level = opts.compression_level
 
     def __enter__(self):
         if not self.opts.overwrite and isfile(self.file_name):
-            raise Exception(f"ERROR: control file {self.file_name} already exists")
+            raise Exception(f"ERROR: {self.file_type} file {self.file_name} already exists")
         self.file = open(self.file_name, 'w')
         return self.file
 
     def __exit__(self, type, value, tb):
-        logging.info(f"Writing GEMMA2/Rqtl2 control {self.file_name}")
+        logging.info(f"Writing GEMMA2/Rqtl2 {self.file_type} {self.file_name}")
         self.file.close()
 
-class pheno_write_open(object):
+class control_write_open(write_open):
     def __init__(self):
-        opts = get_options_ns()
-        self.opts = opts
-        self.file_name = opts.out_prefix+"_pheno.txt.gz"
-        self.compression_level = opts.compression_level
+        write_open.__init__(self,"control",".json")
+
+class pheno_write_open:
+    def __init__(self):
+        write_open.__init__(self,"pheno","_pheno.txt.gz")
 
     def __enter__(self):
         if not self.opts.overwrite and isfile(self.file_name):
@@ -37,14 +43,14 @@ class pheno_write_open(object):
         return self.file
 
     def __exit__(self, type, value, tb):
-        logging.info(f"Writing GEMMA2/Rqtl2 pheno {self.file_name}")
+        logging.info(f"Writing GEMMA2/Rqtl2 {self.file_type} {self.file_name}")
         self.file.close()
 
-class geno_write_open(object):
-    def __init__(self):
+class geno_write_open:
+    def __init__(self, postfix: str = "_geno.txt.gz"):
         opts = get_options_ns()
         self.opts = opts
-        self.file_name = opts.out_prefix+"_geno.txt.gz"
+        self.file_name = opts.out_prefix+postfix
         self.compression_level = opts.compression_level
 
     def __enter__(self):
@@ -57,7 +63,7 @@ class geno_write_open(object):
         logging.info(f"Writing GEMMA2/Rqtl2 geno {self.file_name}")
         self.file.close()
 
-class gmap_write_open(object):
+class gmap_write_open:
     def __init__(self):
         opts = get_options_ns()
         self.opts = opts

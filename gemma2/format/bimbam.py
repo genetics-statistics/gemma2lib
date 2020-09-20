@@ -93,31 +93,22 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
 
 def write_bimbam(controlfn):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
-    options = get_options_ns()
-    path = dirname(controlfn)
+    # options = get_options_ns()
     control = load_control(controlfn)
-    base = splitext(control.pheno)[0]
-    if path:
-        base = path + "/" + base
 
-    phenofn = options.out_prefix+control.pheno+"_bimbam.txt"
-    logging.info(f"Writing BIMBAM pheno file {phenofn}")
-    with open(phenofn,"w") as f:
+    with safe.write_open("pheno","_bimbam.txt") as f:
+        phenofn = f.name
         for p in iter_pheno(control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
             f.write("\t".join(p[1:]))
             f.write("\n")
 
-    base = splitext(splitext(control.geno)[0])[0]
-    if path:
-        base = path + "/" + base
-    genofn = options.out_prefix+control.geno+"_bimbam.txt.gz"
-    logging.info(f"Writing BIMBAM geno file {genofn}")
     genotype_translate = control.genotypes
     genoA = control.alleles[0]
     genoB = control.alleles[1]
-    with gzip.open(genofn, mode='wb', compresslevel=options.compression_level) as f:
-        for marker,genotypes in iter_geno(control.geno, sep=control.geno_sep, header=False):
+    with safe.geno_write_open("_bimbam.txt.gz") as f:
+        genofn = f.name
+        for marker,genotypes in iter_geno(control.geno, sep=control.sep, geno_sep=control.geno_sep, header=False):
             f.write(marker.encode())
             f.write(f",{genoA},{genoB},".encode())
             f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())
