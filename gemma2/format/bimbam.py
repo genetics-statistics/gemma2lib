@@ -38,7 +38,7 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     p_inds = 0
     phenos = None
     with open(phenofn,"r") as f:
-        with safe.pheno_write_open() as out:
+        with safe.pheno_write_open("_pheno_bimbam.txt") as out:
             outphenofn = out.name
             for line in f:
                 ps = line.strip().split("\t")
@@ -59,7 +59,7 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     translate = { "1": "A", "0": "B", "0.5": "H" } # FIXME hard coded
 
     in_header = True
-    with safe.geno_write_open() as out:
+    with safe.geno_write_open("_geno_bimbam.txt.gz") as out:
         outgenofn = out.name
         with gzip.open(genofn, mode='r') as f:
             for line in f:
@@ -96,7 +96,7 @@ def write_bimbam(controlfn):
     # options = get_options_ns()
     control = load_control(controlfn)
 
-    with safe.write_open("pheno","_bimbam.txt") as f:
+    with safe.pheno_write_open("_pheno_bimbam.txt") as f:
         phenofn = f.name
         for p in iter_pheno(control.pheno, sep=control.sep, header=False):
             # skip the header and the item counter, otherwise same
