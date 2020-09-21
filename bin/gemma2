@@ -164,10 +164,12 @@ def export(ctx,bimbam,control):
               help="GEMMA2 control file (JSON)")
 @click.option('-p','--pheno-column',type=int, default=1, show_default=True,
               help="Filter on phenotype column")
+@click.option('--maf',type=float, default=0.05, show_default=True,
+              help="Filter on marker/SNP row minory allele frequency")
 @click.pass_context
 
-def filter(ctx,control,pheno_column):
-    filters(control,pheno_column)
+def filter(ctx,control,pheno_column,maf):
+    filters(control,pheno_column,maf)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validation commands")
