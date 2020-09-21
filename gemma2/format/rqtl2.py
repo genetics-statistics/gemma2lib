@@ -79,58 +79,31 @@ format is supported
     g = np.empty(shape, dtype=np.float32, order="F")
     # print(g.shape)
     in_header = True
+    columns = None
+    markerlist = []
     with gzip.open(fn) as f:
         line = f.readline()
         if line[0] == '#':
             next
-        i = None
+        count = None
         while line:
             if in_header:
                 in_header = False
-                i = 0
+                count = 0
                 next
             else:
                 (marker,l) = line.decode().rstrip().split("\t",3)
                 # print(list(l.rstrip()))
-                g[i,:] = [genotype_translate[v] for v in list(l)]
+                markerlist.append(marker)
+                gs = [genotype_translate[v] for v in list(l)]
+                assert len(gs)==inds,"number of genotypes for {marker}@{count} differs from {inds}"
+                g[count,:] = gs
                 # print(i,g[i])
-                i += 1
+                count += 1
             line = f.readline()
-    print(g)
-    row = g[0]
     memory_usage()
-    print(row[0:markers])
-    print(row.shape)
-    K = np.dot(g,g.T)/markers
-
-    if False:
-        # If the matrices are in Fortran order then the computations
-        # will be faster when using dgemm.  Otherwise, the function
-        # will copy the matrix and that takes time.
-        from scipy.linalg.blas import dgemm
-
-        gT = g.T
-        A = g
-        B = gT
-
-        if not A.flags['F_CONTIGUOUS']:
-            AA = A.T
-            transA = True
-        else:
-            AA = A
-            transA = False
-
-            if not B.flags['F_CONTIGUOUS']:
-                BB = B.T
-                transB = True
-            else:
-                BB = B
-                transB = False
-
-                K = dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)/markers
-
-    print(K)
-    memory_usage()
+    assert count==markers, f"number of markers ({markers}) does not match {i} lines in {fn}"
+    return(g,markerlist)
 
 def iter_pheno_txt(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
