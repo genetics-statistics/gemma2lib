@@ -81,7 +81,9 @@ format is supported
     inds = ctrl.individuals
     markers = ctrl.markers
     genotype_translate = ctrl.genotypes
-    assert hasattr(control, 'geno_compact'), "Expect geno_compact set in control file"
+    print(control)
+    assert 'geno_compact' in control, "Expect geno_compact set in control file"
+    assert 'geno_transposed' in control, "Expect geno_transposed set in control file"
     assert markers>inds, f"markers ({markers}) should be larger than individuals ({inds})"
     logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
     shape = (markers,inds)

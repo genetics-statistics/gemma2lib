@@ -6,7 +6,8 @@ from os.path import dirname, basename, isfile
 import sys
 from gemma2.utility.options import get_options_ns
 import gemma2.utility.safe as safe
-from gemma2.format.rqtl2 import load_control, methodize, iter_pheno, iter_geno, write_new_control
+import gemma2.utility.data
+from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_new_control
 
 def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) -> bool:
     """Pass maf threshold? FIXME: need to account for values.
@@ -30,7 +31,7 @@ def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) ->
 
 def filters(controlfn: str, pheno_column: int, maf: float):
     control = load_control(controlfn)
-    ctrl = methodize(control)
+    ctrl = data.methodize(control)
     na_strings = ctrl.na_strings
     path = dirname(controlfn) or "."
     ids = []
@@ -70,6 +71,8 @@ def filters(controlfn: str, pheno_column: int, maf: float):
     ncontrol = copy.deepcopy(control)
     ncontrol['command'] = "filter"
     ncontrol['geno'] = genofn
+    ncontrol['geno_compact'] = True
+    ncontrol['geno_transposed'] = True
     ncontrol['pheno'] = phenofn
     ncontrol['individuals'] = inds
     ncontrol['markers'] = markers

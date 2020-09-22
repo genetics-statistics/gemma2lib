@@ -3,6 +3,7 @@ import numpy as np
 from os.path import dirname, basename
 from subprocess import run,CompletedProcess
 
+import gemma2.utility.data as data
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
@@ -15,7 +16,9 @@ def compute_kinship(control):
     g = G
     row = g[0]
     memory_usage()
-    markers = control.markers
+    ctrl = data.methodize(control)
+
+    markers = ctrl.markers
     print(row[0:markers])
     print(row.shape)
     # apply maf_filter
