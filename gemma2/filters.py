@@ -8,15 +8,25 @@ from gemma2.utility.options import get_options_ns
 import gemma2.utility.safe as safe
 from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_control
 
-def maf_filter(maf_threshold: float, gs: list, na_strings: list) -> bool:
-    """Pass maf threshold? FIXME: need to account for values"""
+def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) -> bool:
+    """Pass maf threshold? FIXME: need to account for values.
+    Returns True if SNP passes MAF threshold
+    """
     realgs = list(filter(lambda g: not g in na_strings, gs))
     realnum = len(realgs)
     missing = len(gs) - realnum
     counter=collections.Counter(realgs)
-    least_common = counter.most_common()[:-2:-1]
-    minor_count = least_common[0][1]
-    return minor_count/realnum < maf_threshold
+    if len(counter) < 2:
+        logging.debug(f"MAF filter {maf_threshold} fails {counter} at {marker}")
+        return False
+    # we take the second value which differs from GEMMA1 in the rare
+    # instance that we have enough Heterozygous - FIXME when we have
+    # genotype numbers
+    minor_count = counter.most_common()[1][1]
+    ret = minor_count/realnum > maf_threshold
+    if not ret:
+        logging.debug(f"MAF filter {maf_threshold} fails {counter} at {marker}")
+    return ret
 
 def filters(controlfn: str, pheno_column: int, maf: float):
     control = load_control(controlfn)
@@ -47,7 +57,7 @@ def filters(controlfn: str, pheno_column: int, maf: float):
             gs = []
             for i in idx:
                 gs.append(genos[i-1])
-            if maf_filter(maf,gs,na_strings):
+            if maf_filter(marker,maf,gs,na_strings):
                 markers += 1
                 g.write(marker.encode())
                 g.write("\t".encode())

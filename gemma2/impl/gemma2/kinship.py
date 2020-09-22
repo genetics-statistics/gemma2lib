@@ -18,7 +18,7 @@ def compute_kinship(control):
     markers = control.markers
     print(row[0:markers])
     print(row.shape)
-    apply maf_filter
+    # apply maf_filter
     K = np.dot(g,g.T)
     K = K/markers # FIXME, check MAF filter
 
