@@ -22,7 +22,7 @@ def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) ->
         return False
     # we take the second value which differs from GEMMA1 in the rare
     # instance that we have enough Heterozygous - FIXME when we have
-    # genotype numbers
+    # genotype numbers - H should count by minor allele 50%.
     minor_count = counter.most_common()[1][1]
     ret = minor_count/realnum > maf_threshold
     if not ret:
