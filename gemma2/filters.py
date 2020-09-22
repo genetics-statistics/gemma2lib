@@ -6,7 +6,7 @@ from os.path import dirname, basename, isfile
 import sys
 from gemma2.utility.options import get_options_ns
 import gemma2.utility.safe as safe
-from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_control
+from gemma2.format.rqtl2 import load_control, methodize, iter_pheno, iter_geno, write_new_control
 
 def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) -> bool:
     """Pass maf threshold? FIXME: need to account for values.
@@ -30,15 +30,15 @@ def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) ->
 
 def filters(controlfn: str, pheno_column: int, maf: float):
     control = load_control(controlfn)
-    print(control)
-    na_strings = control.na_strings
+    ctrl = methodize(control)
+    na_strings = ctrl.na_strings
     path = dirname(controlfn) or "."
     ids = []
     idx = []
     count = -1
 
     with safe.pheno_write_open() as p:
-        for row in iter_pheno(path+"/"+control.pheno, header = True):
+        for row in iter_pheno(path+"/"+ctrl.pheno, header = True):
             count += 1
             if not row[pheno_column] in na_strings:
                 id = row[0]
@@ -53,7 +53,7 @@ def filters(controlfn: str, pheno_column: int, maf: float):
     with safe.geno_write_open() as g:
         g.write("\t".join(["marker"]+ids).encode())
         g.write("\n".encode())
-        for marker,genos in iter_geno(path+"/"+control.geno, header = False):
+        for marker,genos in iter_geno(path+"/"+ctrl.geno, header = False):
             gs = []
             for i in idx:
                 gs.append(genos[i-1])
@@ -66,4 +66,12 @@ def filters(controlfn: str, pheno_column: int, maf: float):
         genofn = g.name
     inds = len(idx)
     # Write control file last
-    write_control(inds,markers,control.phenotypes,genofn,phenofn,control.gmap,maf=maf)
+    import copy
+    ncontrol = copy.deepcopy(control)
+    ncontrol['command'] = "filter"
+    ncontrol['geno'] = genofn
+    ncontrol['pheno'] = phenofn
+    ncontrol['individuals'] = inds
+    ncontrol['markers'] = markers
+    ncontrol['maf'] = maf
+    write_new_control(ncontrol)

@@ -15,7 +15,7 @@ def compute_kinship(control):
     output_basename = basename(opts.out_prefix)
     logging.info('Computing GRM with GEMMA1')
     logging.info('Convert to intermediate BIMBAM')
-    genofn, phenofn = write_bimbam(control.name)
+    genofn, phenofn = write_bimbam(control['name'])
     logging.info(f"Call gemma with {genofn}")
     args1 = [opts.gemma1_bin,'-outdir',output_path,'-o',output_basename,'-gk','-g',genofn,'-p',phenofn]
     cmd = " ".join(args1)

@@ -8,11 +8,12 @@ import sys
 
 from os.path import dirname, basename, isfile
 from types import SimpleNamespace
+from gemma2.utility.data import methodize
 from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
 import gemma2.utility.safe as safe
 
-def load_control(fn: str) -> SimpleNamespace:
+def load_control(fn: str) -> dict:
     """Load GEMMA2/Rqtl2 style control file"""
     logging.info(f"Reading GEMMA2/Rqtl2 control {fn}")
 
@@ -23,8 +24,14 @@ def load_control(fn: str) -> SimpleNamespace:
     data["na_strings"] = data["na.strings"]
     data["name"] = fn
     logging.info(data)
-    control = SimpleNamespace(**data)
-    return control
+    return data
+
+
+def write_new_control(control: SimpleNamespace):
+    opts = get_options_ns()
+    control['command'] = " ".join(opts.args)
+    with safe.control_write_open() as controlf:
+        json.dump(control, controlf, indent=4)
 
 def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
     opts = get_options_ns()
@@ -34,7 +41,7 @@ def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
     descr = " ".join(opts.args)
     Null = None
     control = {
-        "description": descr,
+        "command": descr,
         "crosstype": Null,   # we are not assuming a cross for GEMMA
         "sep": "\t",
         "na.strings": ["-"],
@@ -60,7 +67,8 @@ def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
 
 def load_gmap(control):
     """GEMMA2/Rqtl2 eager loading of gmap file"""
-    fn = control.gmap
+    ctrl = methodize(control)
+    fn = ctrl.gmap
     logging.info(f"Reading GEMMA2/Rqtl2 gmap {fn}")
 
 def load_geno(control):
@@ -68,10 +76,11 @@ def load_geno(control):
 format is supported
 
     """
-    fn = control.geno
-    inds = control.individuals
-    markers = control.markers
-    genotype_translate = control.genotypes
+    ctrl = methodize(control)
+    fn = ctrl.geno
+    inds = ctrl.individuals
+    markers = ctrl.markers
+    genotype_translate = ctrl.genotypes
     assert hasattr(control, 'geno_compact'), "Expect geno_compact set in control file"
     assert markers>inds, f"markers ({markers}) should be larger than individuals ({inds})"
     logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
