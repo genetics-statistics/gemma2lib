@@ -52,7 +52,7 @@ def check_genotypes(num,gs,na_strings):
     # we take the second value which differs from GEMMA1 in the rare
     # instance that we have enough Heterozygous - FIXME when we have
     # genotype numbers - H should count by minor allele 50%.
-    minor_count = counter.most_common()[1][1]
+    # minor_allele = counter.most_common()[1][0]
     # ret = minor_count/realnum > maf_threshold
     # if not ret:
     #     logging.debug(f"MAF filter {maf_threshold} fails {counter} at {marker}")

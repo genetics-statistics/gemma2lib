@@ -16,7 +16,7 @@ from gemma2.utility.system import memory_usage
 from gemma2.format.rqtl2 import load_control, write_control, iter_pheno, iter_geno
 
 def convert_bimbam(genofn: str, phenofn: str, annofn: str):
-    """Read BIMBAM and output to Rqtl2"""
+    """Read/convert/import BIMBAM and output to Rqtl2 format"""
     options = get_options_ns()
     path = options.out_prefix
 
