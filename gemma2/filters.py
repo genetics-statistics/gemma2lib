@@ -9,6 +9,9 @@ import gemma2.utility.safe as safe
 import gemma2.utility.data
 from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_new_control
 
+def error(msg: str):
+    raise ValueError(msg)
+
 def maf_filter(marker: str, maf_threshold: float, gs: list, na_strings: list) -> bool:
     """Pass maf threshold? FIXME: need to account for values.
     Returns True if SNP passes MAF threshold
