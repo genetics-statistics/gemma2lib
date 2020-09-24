@@ -165,12 +165,14 @@ def export(ctx,bimbam,control):
               help="GEMMA2 control file (JSON)")
 @click.option('-p','--pheno-column',type=int, default=1, show_default=True,
               help="Filter on phenotype column")
-@click.option('--maf',type=float, default=0.05, show_default=True,
+@click.option('--maf',type=float, default=0.01, show_default=True,
               help="Filter on marker/SNP row minory allele frequency")
+@click.option('--miss',type=float, default=0.05, show_default=True,
+              help="Filter on missing data")
 @click.pass_context
 
-def filter(ctx,control,pheno_column,maf):
-    filters(control,pheno_column,maf)
+def filter(ctx,control,pheno_column,maf,miss):
+    filters(control,pheno_column,maf,miss)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Validate input files")
