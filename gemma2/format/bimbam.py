@@ -99,7 +99,7 @@ def write_bimbam(controlfn):
 
     with safe.pheno_write_open("_pheno_bimbam.txt") as f:
         phenofn = f.name
-        for p in iter_pheno(ctrl.pheno, sep=ctrl.sep, header=False):
+        for num,p in iter_pheno(ctrl.pheno, sep=ctrl.sep, header=False):
             # skip the header and the item counter, otherwise same
             f.write("\t".join(p[1:]))
             f.write("\n")
@@ -109,7 +109,7 @@ def write_bimbam(controlfn):
     genoB = ctrl.alleles[1]
     with safe.geno_write_open("_bimbam.txt.gz") as f:
         genofn = f.name
-        for marker,genotypes in iter_geno(ctrl.geno, sep=ctrl.sep, geno_sep=ctrl.geno_sep, header=False):
+        for num,marker,genotypes in iter_geno(ctrl.geno, sep=ctrl.sep, geno_sep=ctrl.geno_sep, header=False):
             f.write(marker.encode())
             f.write(f",{genoA},{genoB},".encode())
             f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())

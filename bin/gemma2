@@ -25,6 +25,7 @@ from gemma2.format.rqtl2 import load_control
 from gemma2.format.plink import convert_plink
 from gemma2.format.bimbam import convert_bimbam,write_bimbam
 from gemma2.filters import filters
+from gemma2.validate import validate_data
 from gemma2.grm import compute_kinship
 from gemma2.utility.options import set_options, get_options_ns
 
@@ -172,11 +173,12 @@ def filter(ctx,control,pheno_column,maf):
     filters(control,pheno_column,maf)
 
 # -------------------------------------------------------------------------------
-@gemma2.command(help="Validation commands")
+@gemma2.command(help="Validate input files")
+@click.option('--control','-c',type=click.Path(exists=True, readable=True),required=True,help="GEMMA2 control file (JSON)")
 @click.pass_context
 
-def validate(ctx):
-    echo('- Validate data')
+def validate(ctx, control):
+    validate_data(control)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Compute kinship/genetic relationship matrix (GRM)")
@@ -209,6 +211,7 @@ gemma2.add_command(gemma1)
 gemma2.add_command(filter)
 gemma2.add_command(grm)
 gemma2.add_command(lmm)
+gemma2.add_command(validate)
 
 import traceback
 

@@ -124,7 +124,7 @@ def iter_pheno_txt(fn: str, sep: str = "\t", header: bool = False):
         for line in f:
             count += 1
             if header or count > 1:
-                yield line.strip().split(sep)
+                yield count,line.strip().split(sep)
 
 def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
@@ -134,7 +134,7 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
         for line in f:
             count += 1
             if header or count > 1:
-                yield line.decode().strip().split(sep)
+                yield count,line.decode().strip().split(sep)
 
 def iter_geno(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = False):
     count = 0
@@ -149,4 +149,4 @@ def iter_geno(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = F
             if count>1:
                 l = line.decode()
                 marker,genotypes = l.strip().split(sep,2)
-                yield marker,[char for char in genotypes]
+                yield count,marker,[char for char in genotypes]

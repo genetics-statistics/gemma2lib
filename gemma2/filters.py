@@ -36,10 +36,10 @@ def filters(controlfn: str, pheno_column: int, maf: float):
     path = dirname(controlfn) or "."
     ids = []
     idx = []
-    count = -1
+    count = -1 # FIXME, now comes with iter
 
     with safe.pheno_write_open() as p:
-        for row in iter_pheno(path+"/"+ctrl.pheno, header = True):
+        for num,row in iter_pheno(path+"/"+ctrl.pheno, header = True):
             count += 1
             if not row[pheno_column] in na_strings:
                 id = row[0]
@@ -54,7 +54,7 @@ def filters(controlfn: str, pheno_column: int, maf: float):
     with safe.geno_write_open() as g:
         g.write("\t".join(["marker"]+ids).encode())
         g.write("\n".encode())
-        for marker,genos in iter_geno(path+"/"+ctrl.geno, header = False):
+        for num,marker,genos in iter_geno(path+"/"+ctrl.geno, header = False):
             gs = []
             for i in idx:
                 gs.append(genos[i-1])
