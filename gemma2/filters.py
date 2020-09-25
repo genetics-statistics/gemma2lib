@@ -24,10 +24,10 @@ def maf_filter(marker: str, maf_threshold: float, miss_threshold: float,
     counter=collections.Counter(realgs)
     miss_fract = missing/num
     if miss_fract > miss_threshold:
-        logging.debug(f"Miss filter {miss_fract} fails {counter} at {marker}")
+        logging.debug(f"Miss filter {miss_fract} drops {counter} at {marker}")
         return False
     if len(counter) < 2:
-        logging.debug(f"MAF filter {maf_threshold} fails {counter} at {marker}")
+        logging.debug(f"MAF filter {maf_threshold} drops {counter} at {marker}")
         return False
     # we take the second value which differs from GEMMA1 in the rare
     # instance that we have enough Heterozygous - FIXME when we have
@@ -35,7 +35,7 @@ def maf_filter(marker: str, maf_threshold: float, miss_threshold: float,
     minor_count = counter.most_common()[1][1]
     ret = minor_count/realnum > maf_threshold
     if not ret:
-        logging.debug(f"MAF filter {maf_threshold} fails {counter} at {marker}")
+        logging.debug(f"MAF filter {maf_threshold} drops {counter} at {marker}")
     return ret
 
 def filters(controlfn: str, pheno_column: int, maf: float, miss: float):
