@@ -24,12 +24,17 @@ def warn(msg: str):
     msg += f" ({_err_msg} file {_err_filename} line {_err_line})"
     logging.warn(msg)
 
-def warn_once(id: str, msg: str):
+def warn_limit(id: str, msg: str):
+    """Limit the number of warnings"""
     global _warnings
     if not id in _warnings:
-        _warnings[id] = True
+        _warnings[id] = 0
+    _warnings[id] += 1
+    if _warnings[id] > 3:
+        return
+    if _warnings[id] == 3:
         msg += f" --- other similar {id} warnings are ignored"
-        warn(msg)
+    warn(msg)
 
 def error(msg: str):
     msg += f" ({_err_msg} file {_err_filename} line {_err_line})"
@@ -44,11 +49,11 @@ def check_genotypes(num,gs,na_strings):
     if fract_real < CONST_FRACT_REAL:
         warn(f"Low fraction of real genotypes ({fract_real}) in {gs}")
     if realnum < CONST_MIN_REAL:
-        warn_once("realnum",f"There are not enough genotypes ({realnum}) in {gs}")
+        warn_limit("realnum",f"There are not enough genotypes ({realnum}) in {gs}")
     missing = len(gs) - realnum
     counter=collections.Counter(realgs)
     if len(counter) < 2:
-        warn_once("counter",f"Minimal two genotypes required {counter} found in {gs}")
+        warn_limit("counter",f"Minimal two genotypes required {counter} found in {gs}")
     # we take the second value which differs from GEMMA1 in the rare
     # instance that we have enough Heterozygous - FIXME when we have
     # genotype numbers - H should count by minor allele 50%.
