@@ -93,3 +93,8 @@ def validate_data(controlfn: dict, maf: float, miss: float):
     logging.info(f"In {fn} counted {inds} markers {markers} samples and {histogram}")
     assert ctrl.markers == markers
     assert ctrl.individuals == inds
+    if len(_warnings) == 0:
+        logging.info(f"Great! Genotype file {fn} looks OK")
+    else:
+        logging.warn(f"Genotype file {fn} has warnings")
+        sys.exit(2)
