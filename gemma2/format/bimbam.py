@@ -13,7 +13,7 @@ from types import SimpleNamespace
 from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
 
-from gemma2.format.rqtl2 import load_control, write_control, iter_pheno, iter_geno
+from gemma2.format.rqtl2 import load_control, write_control, iter_pheno, iter_geno, methodize
 
 def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     """Read/convert/import BIMBAM and output to Rqtl2 format"""

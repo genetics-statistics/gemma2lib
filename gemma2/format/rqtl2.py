@@ -5,6 +5,7 @@ import gzip
 import logging
 import numpy as np
 import sys
+from typing import Callable
 
 from os.path import dirname, basename, isfile
 from types import SimpleNamespace
@@ -71,9 +72,11 @@ def load_gmap(control):
     fn = ctrl.gmap
     logging.info(f"Reading GEMMA2/Rqtl2 gmap {fn}")
 
-def load_geno(control):
+def load_geno(control: dict, filter_gs_ok: Callable[[list],bool]) -> np.ndarray:
     """GEMMA2/Rqtl2 eager loading of GENO file. Currently only the compact
-format is supported
+format is supported. Returns a genotype numpy matrix with numbers
+(minor allele count) and the belonging marker list. filter_gs_ok is a
+filtering function for a marker list of genotypes.
 
     """
     ctrl = methodize(control)
@@ -92,6 +95,7 @@ format is supported
     in_header = True
     columns = None
     markerlist = []
+    failed = 0
     with gzip.open(fn) as f:
         line = f.readline()
         if line[0] == '#':
@@ -104,44 +108,41 @@ format is supported
                 next
             else:
                 (marker,l) = line.decode().rstrip().split("\t",3)
-                # print(list(l.rstrip()))
-                markerlist.append(marker)
                 gs = [genotype_translate[v] for v in list(l)]
                 assert len(gs)==inds,"number of genotypes for {marker}@{count} differs from {inds}"
-                g[count,:] = gs
-                # print(i,g[i])
-                count += 1
+                if filter_gs_ok(marker,gs):
+                    markerlist.append(marker)
+                    g[count,:] = np.array(gs)
+                    count += 1
+                else:
+                    failed += 1
             line = f.readline()
     memory_usage()
-    assert count==markers, f"number of markers ({markers}) does not match {i} lines in {fn}"
+    if failed > 0:
+        logging.warn(f"{failed} out of {markers} markers were filtered out")
+    assert count==markers-failed, f"number of markers ({markers}) does not match ({count+failed}) lines in {fn}"
     return(g,markerlist)
 
 def iter_pheno_txt(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
-    count = 0
     logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
     with open(fn,"r") as f:
-        for line in f:
-            count += 1
+        for count, line in enumerate(f):
             if header or count > 1:
                 yield count,line.strip().split(sep)
 
 def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
     """Iter of GEMMA2 pheno file. Returns by line"""
-    count = 0
     logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
     with gzip.open(fn,"r") as f:
-        for line in f:
-            count += 1
+        for count,line in enumerate(f):
             if header or count > 1:
                 yield count,line.decode().strip().split(sep)
 
 def iter_geno(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = False):
-    count = 0
     logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")
     with gzip.open(fn) as f:
-        for line in f:
-            count += 1
+        for count,line in enumerate(f):
             if header and count==1:
                 h = line.decode()
                 hs = h.strip().split(sep)

@@ -1,55 +1,48 @@
 import logging
 import numpy as np
+from typing import List
 from os.path import dirname, basename
 from subprocess import run,CompletedProcess
+import sys
 
 import gemma2.utility.data as data
+from gemma2.filters import maf_num_filter
 from gemma2.format.rqtl2 import load_control, load_geno
 from gemma2.utility.options import get_options_ns
 from gemma2.utility.system import memory_usage
 
+# def impute_gs(marker: str, gs: List[float]) -> List[float]:
+#     pass
+
 def compute_kinship(control):
+    # FIXME: these values are hard coded to develop the algorithm
+    miss = 0.05
+    maf = 0.01
+
+    def filter_gs_ok(marker: str, gs: List[float]) -> bool:
+        # 1. [X] Always apply the MAF filter when reading genotypes
+        # 2. [X] Apply missiness filter
+        return maf_num_filter(marker,gs,miss,maf)
+
     opts = get_options_ns()
     print(control)
-    G,markerlist = load_geno(control)
-    print(G)
-    g = G
-    row = g[0]
-    memory_usage()
+    G,markerlist = load_geno(control,filter_gs_ok)
+    # print(G)
     ctrl = data.methodize(control)
+    # print(type(G))
+
+    for idx, gs in enumerate(G):
+        mean = np.mean(gs[~np.isnan(gs)]) # skip NAN
+        # 3. [ ] Always impute missing data (injecting the row mean) FIXME
+        # 4. [X] Always subtract the row mean
+        gs = gs - mean
+        # 5. [ ] Center the data by row (which is the default option ~-gk 1~)
+        G[idx,:] = gs
 
     markers = ctrl.markers
-    print(row[0:markers])
-    print(row.shape)
-    # apply maf_filter
-    K = np.dot(g,g.T)
-    K = K/markers # FIXME, check MAF filter
-
-    if False:
-        # If the matrices are in Fortran order then the computations
-        # will be faster when using dgemm.  Otherwise, the function
-        # will copy the matrix and that takes time.
-        from scipy.linalg.blas import dgemm
-
-        gT = g.T
-        A = g
-        B = gT
-
-        if not A.flags['F_CONTIGUOUS']:
-            AA = A.T
-            transA = True
-        else:
-            AA = A
-            transA = False
-
-            if not B.flags['F_CONTIGUOUS']:
-                BB = B.T
-                transB = True
-            else:
-                BB = B
-                transB = False
-
-                K = dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)/markers
-
+    K = np.dot(G,G.T)
+    # 6. Always scale the matrix dividing by # of SNPs
+    K = K/markers
+    print(G)
     print(K)
     memory_usage()

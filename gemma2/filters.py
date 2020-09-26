@@ -1,9 +1,13 @@
 # Filtering functions
+#
+# Run doctest with
+# env PYTHONPATH=$PYTHONPATH:. python3 -m doctest -v gemma2/filters.py
 
 import collections
 import logging
 from os.path import dirname, basename, isfile
 import sys
+from typing import List
 from gemma2.utility.options import get_options_ns
 import gemma2.utility.safe as safe
 import gemma2.utility.data as data
@@ -12,8 +16,38 @@ from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_new_c
 def error(msg: str):
     raise ValueError(msg)
 
+
+def maf_num_filter(marker: str, gs: List[float], miss_threshold: float, maf_threshold: float) -> bool:
+    """
+    maf_num_filter
+
+    Try and break on missingness:
+
+    >>> maf_num_filter("marker",[0.0, 1.0, None, None],0.05,0.01)
+    False
+
+    >>> maf_num_filter("marker",[0.0, 1.0, 2.0, None],miss_threshold=0.3,maf_threshold=0.01)
+    True
+
+    >>> maf_num_filter("marker",[0.0, 1.0, 2.0, 1.0],0.05,0.01)
+    True
+
+    """
+    num = len(gs)
+    values = list(filter(None.__ne__, gs))
+    realnum = len(values)
+    missing = num - realnum
+    miss_fract = missing/num
+    if miss_fract > miss_threshold:
+        logging.debug(f"Miss filter {miss_fract} drops at {marker}")
+        return False
+    # Do the gemma1 count
+    maf = sum(values)/(realnum*2.0)
+    # print(maf,values)
+    return maf > maf_threshold
+
 def maf_filter(marker: str, maf_threshold: float, miss_threshold: float,
-               gs: list, na_strings: list) -> bool:
+               gs: List[str], na_strings: list) -> bool:
     """Pass maf threshold? FIXME: need to account for values.
     Returns True if SNP passes MAF threshold
     """
@@ -23,11 +57,11 @@ def maf_filter(marker: str, maf_threshold: float, miss_threshold: float,
     missing = num - realnum
     counter=collections.Counter(realgs)
     miss_fract = missing/num
+    if len(counter) < 2:
+        logging.debug(f"Single genotype. MAF filter drops {counter} at {marker}")
+        return False
     if miss_fract > miss_threshold:
         logging.debug(f"Miss filter {miss_fract} drops {counter} at {marker}")
-        return False
-    if len(counter) < 2:
-        logging.debug(f"MAF filter {maf_threshold} drops {counter} at {marker}")
         return False
     # we take the second value which differs from GEMMA1 in the rare
     # instance that we have enough Heterozygous - FIXME when we have
