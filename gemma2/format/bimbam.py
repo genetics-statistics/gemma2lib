@@ -38,7 +38,7 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     p_inds = 0
     phenos = None
     with open(phenofn,"r") as f:
-        with safe.pheno_write_open("_pheno_bimbam.txt") as out:
+        with safe.pheno_write_open("_pheno_bimbam.txt.gz") as out:
             outphenofn = out.name
             for line in f:
                 ps = line.strip().split("\t")
@@ -83,8 +83,6 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
                 if not inds:
                     inds = len(gs)-3
                     logging.info(f"{inds} individuals")
-
-
 
     logging.info(f"{markers} markers")
     logging.info(f"{phenos} phenotypes")

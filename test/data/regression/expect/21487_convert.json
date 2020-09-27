@@ -1,0 +1,28 @@
+{
+    "command": "./bin/gemma2 --overwrite -o test/data/regression/21487_convert convert --bimbam -g example/21487_BXD_geno.txt.gz -a example/BXD_snps.txt -p example/21487_BXDPublish_pheno.txt",
+    "crosstype": null,
+    "sep": "\t",
+    "na.strings": [
+        "-"
+    ],
+    "comment.char": "#",
+    "individuals": 198,
+    "markers": 7321,
+    "phenotypes": 1,
+    "geno": "21487_convert_geno_bimbam.txt.gz",
+    "pheno": "21487_convert_pheno_bimbam.txt.gz",
+    "gmap": "21487_convert_gmap.txt.gz",
+    "alleles": [
+        "A",
+        "B",
+        "H"
+    ],
+    "genotypes": {
+        "A": 0,
+        "H": 1,
+        "B": 2
+    },
+    "geno_sep": false,
+    "geno_transposed": true,
+    "geno_compact": true
+}

@@ -2,4 +2,4 @@
 #
 # Note it uses the channel at http://git.genenetwork.org/pjotrp/guix-bioinformatics
 
-env GUIX_PACKAGE_PATH=~/iwrk/opensource/guix/guix-bioinformatics/ ~/.config/guix/current/bin/guix environment -C guix --ad-hoc python python-click python-toolz which vim r r-qtl2 r-readr gemma-gn2 python-pandas-plink python-psutil python-mypy python-scipy
+env GUIX_PACKAGE_PATH=~/iwrk/opensource/guix/guix-bioinformatics/ ~/.config/guix/current/bin/guix environment -C guix --ad-hoc python python-click python-toolz which vim r r-qtl2 r-readr gemma-gn2 python-pandas-plink python-psutil python-mypy python-scipy python-pytest-regressions

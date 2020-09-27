@@ -5,3 +5,5 @@ output
 *.tab
 *.gz
 result*
+bin/gemma
+test/data/regression/*

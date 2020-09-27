@@ -32,17 +32,29 @@ def compute_kinship(control):
     # print(type(G))
 
     for idx, gs in enumerate(G):
-        mean = np.mean(gs[~np.isnan(gs)]) # skip NAN
-        # 3. [ ] Always impute missing data (injecting the row mean) FIXME
+        values = gs[~np.isnan(gs)]
+        mean = np.mean(values) # skip NAN
+        # print(mean,variance)
+        # 3. [X] Always impute missing data (injecting the row mean) FIXME
+        def f(value: float):
+            if np.isnan(value):
+                return mean
+            return value
+
+        gs = [f(g) for g in gs]
+        # print(gs)
         # 4. [X] Always subtract the row mean
-        gs = gs - mean
-        # 5. [ ] Center the data by row (which is the default option ~-gk 1~)
+        gs -= mean
+        # 5. [X] Center the data by row (which is the default option ~-gk 1~)
+        # std is sqrt(var)
+        gs /= np.std(gs) # std is always about 1.0 with BXD. assert std != 0.0:
         G[idx,:] = gs
 
     markers = ctrl.markers
     K = np.dot(G,G.T)
     # 6. Always scale the matrix dividing by # of SNPs
-    K = K/markers
-    print(G)
+    print("markers",markers)
+    K /= markers
+    # print(G)
     print(K)
     memory_usage()
