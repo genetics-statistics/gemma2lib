@@ -7,7 +7,7 @@ from subprocess import run,CompletedProcess
 from gemma2.format.bimbam import write_bimbam
 from gemma2.utility.options import get_options_ns
 
-def compute_kinship(control):
+def compute_kinship(control, standardized):
     opts = get_options_ns()
     output_path = dirname(opts.out_prefix)
     if not output_path:
@@ -17,7 +17,8 @@ def compute_kinship(control):
     logging.info('Convert to intermediate BIMBAM')
     genofn, phenofn = write_bimbam(control['name'])
     logging.info(f"Call gemma with {genofn}")
-    args1 = [opts.gemma1_bin,'-debug','-debug-data','-outdir',output_path,'-o',output_basename,'-gk','2','-g',genofn,'-p',phenofn]
+    k_type = "2" if not standardized else "1"
+    args1 = [opts.gemma1_bin,'-debug','-debug-data','-outdir',output_path,'-o',output_basename,'-gk',k_type,'-g',genofn,'-p',phenofn]
     cmd = " ".join(args1)
     logging.warning("Calling: "+cmd)
     # print(args1)

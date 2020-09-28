@@ -194,15 +194,20 @@ def validate(ctx, control, maf, miss):
                                         default = 'default',
                                         # show_default=True,
                                         help="Algorithmic implementation for computing GRM")
+@click.option('--scale',type=click.Choice(['default', 'standardized'],
+                                        case_sensitive=False),
+                                        default = 'default',
+                                        # show_default=True,
+                                        help="Center genotypes (both) and scale by sqrt(cov) (standardized)")
 @click.option('--loco',is_flag=True,help="Leave one chromosome out (LOCO)")
 @click.pass_context
 
-def grm(ctx,control,impl,loco):
+def grm(ctx,control,impl,scale,loco):
     opts = get_options_ns()
     if opts.debug:
         echo('- Kinship/Genetic Relationship Matrix (GRM) command')
     c = load_control(control)
-    K = compute_kinship(c,impl,loco)
+    K = compute_kinship(c,impl,scale,loco)
 
 @gemma2.command(help="Compute genome-wide association (GWA)")
 @click.option('--iterations', default=1_000)
