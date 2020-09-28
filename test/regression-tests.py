@@ -13,8 +13,11 @@ run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_convert conv
 # Filter
 run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_filter filter -c test/data/regression/21487_convert.json".split())
 
-# Compute
+# Compute GRM with gemma1
 run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_grm_gemma1 grm --impl gemma1 -c test/data/regression/21487_filter.json".split())
+
+# Compute GRM with python
+run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_grm grm -c test/data/regression/21487_filter.json".split())
 
 testdir="test/data/regression"
 expectdir=testdir+"/expect"

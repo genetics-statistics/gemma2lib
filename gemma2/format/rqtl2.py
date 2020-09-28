@@ -136,7 +136,7 @@ def iter_pheno(fn: str, sep: str = "\t", header: bool = False):
     logging.info(f"Reading GEMMA2/Rqtl2 pheno {fn}")
     with gzip.open(fn,"r") as f:
         for count,line in enumerate(f):
-            if header or count > 1:
+            if header or count > 0:
                 yield count,line.decode().strip().split(sep)
 
 def iter_geno(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = False):

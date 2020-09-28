@@ -17,7 +17,7 @@ def compute_kinship(control):
     logging.info('Convert to intermediate BIMBAM')
     genofn, phenofn = write_bimbam(control['name'])
     logging.info(f"Call gemma with {genofn}")
-    args1 = [opts.gemma1_bin,'-outdir',output_path,'-o',output_basename,'-gk','-g',genofn,'-p',phenofn]
+    args1 = [opts.gemma1_bin,'-debug','-debug-data','-outdir',output_path,'-o',output_basename,'-gk','2','-g',genofn,'-p',phenofn]
     cmd = " ".join(args1)
     logging.warning("Calling: "+cmd)
     # print(args1)
