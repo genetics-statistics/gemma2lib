@@ -28,18 +28,25 @@ def load_control(fn: str) -> dict:
     return data
 
 
-def write_new_control(control: SimpleNamespace):
+def write_new_control(control: dict, transformation: dict):
+    """Writes a new control reusing the old version, but adding the last
+    command
+
+    """
     opts = get_options_ns()
-    control['command'] = " ".join(opts.args)
+    cmd = " ".join(opts.args)
+    transformation['command'] = cmd
+    if "tranformations" not in control:
+        control['transformations'] = []
+    control['transformations'].append(transformation)
     with safe.control_write_open() as controlf:
         json.dump(control, controlf, indent=4)
 
-def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
-    opts = get_options_ns()
+def write_control(descr:str, inds:int, markers:int, phenotypes:int, genofn:str,
+                  phenofn:str, gmapfn:str, transformation: dict):
     gnfn = basename(genofn)
     phfn = basename(phenofn)
     gmapfn = basename(gmapfn)
-    descr = " ".join(opts.args)
     Null = None
     control = {
         "command": descr,
@@ -61,10 +68,9 @@ def write_control(inds,markers,phenotypes,genofn,phenofn,gmapfn):
         },
         "geno_sep": False,
         "geno_transposed": True,
-        "geno_compact": True
+        "geno_compact": True,
     }
-    with safe.control_write_open() as controlf:
-        json.dump(control, controlf, indent=4)
+    write_new_control(control,transformation)
 
 def load_gmap(control):
     """GEMMA2/Rqtl2 eager loading of gmap file"""

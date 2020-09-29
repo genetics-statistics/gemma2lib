@@ -123,4 +123,5 @@ def filters(controlfn: str, pheno_column: int, maf: float, miss: float):
     ncontrol['individuals'] = inds
     ncontrol['markers'] = markers
     ncontrol['maf'] = maf
-    write_new_control(ncontrol)
+    transformation = { "type": "filter", "pheno-NA": True, "maf": maf, "miss": miss }
+    write_new_control(ncontrol, transformation)

@@ -91,7 +91,8 @@ def convert_plink(path: str, annofn: str):
                 f.write("".join([ translate[item] for item in m[j] ]).encode())
         outgenofn = genofn
 
-    write_control(inds,markers,phenos,outgenofn,outphenofn,outgmapfn)
+    transformation = { "type": "convert", "original": "plink", "format": "rqtl2" }
+    write_control(None,inds,markers,phenos,outgenofn,outphenofn,outgmapfn,transformation)
 
 
     memory_usage("plink geno")

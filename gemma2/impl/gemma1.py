@@ -22,5 +22,5 @@ def compute_kinship(control, standardized):
     cmd = " ".join(args1)
     logging.warning("Calling: "+cmd)
     # print(args1)
-    run(args1)
+    run(args1, check=True)
     logging.info(f"Writing to {output_path}/{output_basename}.cXX.txt")

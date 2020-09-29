@@ -1,5 +1,5 @@
 {
-    "command": "./bin/gemma2 --overwrite -o test/data/regression/21487_convert convert --bimbam -g example/21487_BXD_geno.txt.gz -a example/BXD_snps.txt -p example/21487_BXDPublish_pheno.txt",
+    "command": null,
     "crosstype": null,
     "sep": "\t",
     "na.strings": [
@@ -24,5 +24,13 @@
     },
     "geno_sep": false,
     "geno_transposed": true,
-    "geno_compact": true
+    "geno_compact": true,
+    "transformations": [
+        {
+            "type": "export",
+            "original": "rqtl2",
+            "format": "bimbam",
+            "command": "./bin/gemma2 --overwrite -o test/data/regression/21487_convert convert --bimbam -g example/21487_BXD_geno.txt.gz -a example/BXD_snps.txt -p example/21487_BXDPublish_pheno.txt"
+        }
+    ]
 }

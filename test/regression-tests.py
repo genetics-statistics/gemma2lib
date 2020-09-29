@@ -8,13 +8,13 @@ from pytest_regressions.common import check_text_files
 from subprocess import run
 
 # Convert from BIMBAM to GEMMA/Rqtl2
-run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_convert convert --bimbam -g example/21487_BXD_geno.txt.gz  -a example/BXD_snps.txt -p example/21487_BXDPublish_pheno.txt".split())
+run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_convert convert --bimbam -g example/21487_BXD_geno.txt.gz  -a example/BXD_snps.txt -p example/21487_BXDPublish_pheno.txt".split(),check=True)
 
 # Filter
-run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_filter filter -c test/data/regression/21487_convert.json".split())
+run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_filter filter -c test/data/regression/21487_convert.json".split(),check=True)
 
 # Compute GRM with gemma1
-run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_grm_gemma1 grm --impl gemma1 -c test/data/regression/21487_filter.json".split())
+run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_grm_gemma1 grm --impl gemma1 -c test/data/regression/21487_filter.json".split(),check=True)
 
 # Compute GRM with python
 run("python3 ./bin/gemma2 --overwrite -o test/data/regression/21487_grm grm -c test/data/regression/21487_filter.json".split())

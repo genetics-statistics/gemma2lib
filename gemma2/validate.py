@@ -7,7 +7,7 @@ import sys
 import gemma2.utility.safe as safe
 import gemma2.utility.data as data
 from gemma2.compute.geno import is_maf_fail, is_miss_fail
-from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno, write_new_control
+from gemma2.format.rqtl2 import load_control, iter_pheno, iter_geno
 
 CONST_FRACT_REAL = 0.3  # allow 70% missing genotype data on a marker
 CONST_MIN_REAL   = 10   # minimum 10 real genotypes on a marker
