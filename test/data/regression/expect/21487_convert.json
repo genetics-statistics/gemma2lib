@@ -24,7 +24,6 @@
     },
     "geno_sep": false,
     "geno_transposed": true,
-    "geno_compact": true,
     "transformations": [
         {
             "type": "export",

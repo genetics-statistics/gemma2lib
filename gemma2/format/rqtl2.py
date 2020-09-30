@@ -22,7 +22,7 @@ def load_control(fn: str) -> dict:
     if not "na.strings" in data.values():
         data["na.strings"] = ["NA","nan","-"]
 
-    data["na_strings"] = data["na.strings"]
+    data["na_strings"] = data["na.strings"] # does not work as a method
     data["name"] = fn
     logging.info(data)
     return data
@@ -36,8 +36,6 @@ def write_new_control(control: dict, transformation: dict):
     opts = get_options_ns()
     cmd = " ".join(opts.args)
     transformation['command'] = cmd
-    if "tranformations" not in control:
-        control['transformations'] = []
     control['transformations'].append(transformation)
     with safe.control_write_open() as controlf:
         json.dump(control, controlf, indent=4)
@@ -68,7 +66,7 @@ def write_control(descr:str, inds:int, markers:int, phenotypes:int, genofn:str,
         },
         "geno_sep": False,
         "geno_transposed": True,
-        "geno_compact": True,
+        "transformations" : []
     }
     write_new_control(control,transformation)
 
@@ -91,7 +89,6 @@ filtering function for a marker list of genotypes.
     markers = ctrl.markers
     genotype_translate = ctrl.genotypes
     print(control)
-    assert 'geno_compact' in control, "Expect geno_compact set in control file"
     assert 'geno_transposed' in control, "Expect geno_transposed set in control file"
     assert markers>inds, f"markers ({markers}) should be larger than individuals ({inds})"
     logging.info(f"Reading GEMMA2/Rqtl2 geno {fn}")

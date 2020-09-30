@@ -156,7 +156,9 @@ def convert(ctx,plink,bimbam,geno,pheno,anno):
 
 def export(ctx,bimbam,control):
     echo("Converting from GEMMA2/Rqtl2 format to BIMBAM...")
-    write_bimbam(control)
+    # options = get_options_ns()
+    control2 = load_control(control)
+    write_bimbam(control2)
 
 # -------------------------------------------------------------------------------
 @gemma2.command(help="Filtering commands")

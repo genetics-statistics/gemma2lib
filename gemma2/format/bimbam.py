@@ -90,10 +90,8 @@ def convert_bimbam(genofn: str, phenofn: str, annofn: str):
     transformation = { "type": "export", "original": "rqtl2", "format": "bimbam" }
     write_control(None,inds,markers,phenos,outgenofn,outphenofn,outgmapfn,transformation)
 
-def write_bimbam(controlfn):
+def write_bimbam(control: dict):
     """Write BIMBAM files from R/qtl2 and GEMMA control file"""
-    # options = get_options_ns()
-    control = load_control(controlfn)
     ctrl = methodize(control)
 
     with safe.pheno_write_open("_pheno_bimbam.txt") as f:
