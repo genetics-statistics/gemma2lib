@@ -57,7 +57,7 @@ def maf_filter(marker: str, maf_threshold: float, miss_threshold: float,
     missing = num - realnum
     counter=collections.Counter(realgs)
     miss_fract = missing/num
-    if len(counter) < 2:
+    if len(counter) < 2: # this is gemma1's poly filter
         logging.debug(f"Single genotype. MAF filter drops {counter} at {marker}")
         return False
     if miss_fract > miss_threshold:
@@ -98,6 +98,7 @@ def filters(controlfn: str, pheno_column: int, maf: float, miss: float):
     with safe.geno_write_open() as g:
         logging.debug(f"Filtering genotypes on missing data at {miss}")
         logging.debug(f"Filtering genotypes on maf at {maf}")
+        logging.debug(f"Filtering on identical genotypes (poly)")
         g.write("\t".join(["marker"]+ids).encode())
         g.write("\n".encode())
         for num,marker,genos in iter_geno(path+"/"+ctrl.geno, header = False):
