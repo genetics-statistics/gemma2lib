@@ -154,3 +154,7 @@ def iter_geno(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = F
                 l = line.decode()
                 marker,genotypes = l.strip().split(sep,2)
                 yield count,marker,[char for char in genotypes]
+
+def iter_geno_num(fn: str, sep: str = "\t", geno_sep: bool = False, header: bool = False):
+    for count,marker,gs in iter_geno(fn,sep,geno_sep,header):
+        print(marker,gs)

@@ -26,7 +26,6 @@ def compute_kinship(control,standardized):
         return maf_num_filter(marker,gs,miss,maf)
 
     opts = get_options_ns()
-    print(control)
     G,markerlist = load_geno(control,filter_gs_ok)
     # print(G)
     ctrl = data.methodize(control)
@@ -35,6 +34,7 @@ def compute_kinship(control,standardized):
     for idx, gs in enumerate(G):
         values = gs[~np.isnan(gs)]
         mean = np.mean(values) # skip NAN
+        print(gs)
 
         if idx == 1:
             print("orig",gs)

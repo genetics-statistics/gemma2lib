@@ -9,8 +9,9 @@ new functionalities:
 3. GEMMA2 BIMBAM to GEMMA2/Rqtl2 conversion
    + [X] Convert GeneNetwork style BIMBAM (0,0.5,1)
          see https://github.com/rqtl/qtl2data/tree/master/BXD
-   + [ ] Convert example mouse BIMBAM with 0.45 values
+   + [ ] Convert example mouse BIMBAM with 0.45 values, i.e., use real
+     numbers
    + [ ] What do to with (minor) allele values?
 4. Filtering
    + [X] Phenotypes (NA)
-   + [ ] other filters
+   + [X] other filters
