@@ -4,9 +4,17 @@
 import collections
 import logging
 
+def real_genotypes(gs: list, na_strings: dict) -> list:
+    """Strips out None and NAs"""
+    return list(filter(lambda g: g!=None and not g in na_strings, gs))
+
+def real_alleles(gs: list, na_strings: dict, h_str:str) -> list:
+    """Returns major and minor alleles only"""
+    return list(filter(lambda g: g!=None and g!=h_str and not g in na_strings, gs))
+
 def calc_miss(gs: list, na_strings: dict) -> float:
     num = len(gs)
-    realgs = list(filter(lambda g: not g in na_strings, gs))
+    realgs = real_genotypes(gs,na_strings)
     realnum = len(realgs)
     missing = num - realnum
     counter=collections.Counter(realgs)
@@ -35,11 +43,6 @@ def calc_maf(gs: list, na_strings: dict, h_str: str) -> float:
     0.45454545454545453
 
     """
-    # num = len(gs)
-    # realgs = list(filter(lambda g: not g in na_strings, gs))
-    # realnum = len(realgs)
-    # missing = num - realnum
-    # print(geno_translate_to_num(gs,na_strings,h_str))
     values = list(filter(lambda g: g!=None,geno_translate_to_num(gs,na_strings,h_str)))
     # print(values)
     realnum = len(values)
@@ -91,17 +94,8 @@ def geno_translate_to_num(gs: list, na_strings: dict = {"NA": 1}, h_str: str = "
     AssertionError: Expected max 3 alleles for Counter({'B': 4, 'A': 1, 'H': 1, 'C': 1})
 
     """
-    # num = len(gs)
-    # realgs = list(filter(lambda g: not g in na_strings, gs))
-    # realnum = len(realgs)
-    # missing = num - realnum
-    # values = filter(None, gs)
-    realgs = list(filter(lambda g: g!=None and g!=h_str and not g in na_strings, gs))
+    realgs = real_alleles(gs,na_strings,h_str)
     counter=collections.Counter(realgs)
-    # we take the second value which differs from GEMMA1 in the rare
-    # instance that we have enough Heterozygous - FIXME when we have
-    # genotype numbers - H should count by minor allele 50%.
-    # print(counter)
     count = counter.most_common()
     alleles = len(count)
     assert alleles>1, f"Expected multiple alleles for {counter}"
