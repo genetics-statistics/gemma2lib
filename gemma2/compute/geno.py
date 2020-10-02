@@ -15,16 +15,25 @@ def calc_miss(gs: list, na_strings: dict) -> float:
 def is_miss_fail(gs: list, miss_threshold: float, na_strings: dict) -> bool:
     return calc_miss(gs,na_strings) > miss_threshold
 
-def calc_maf(gs: list, na_strings: dict) -> float:
+def calc_maf(gs: list, na_strings: dict, h_str: str) -> float:
     """
-    >>> calc_maf(["A","A","A","B","B","B","A","H"],{"NA": 1})
+    Compute minor allele frequency.
+
+    >>> calc_maf(["A","A","A","B","B","B","A","H"],{"NA": 1},"H")
     0.375
 
-    >>> calc_maf(["B","B","B","A","A","A","B","H"],{"NA": 1})
+    >>> calc_maf(["B","B","B","A","A","A","B","H"],{"NA": 1},"H")
     0.375
 
-    >>> calc_maf(["B","B","B","A","A","A","B","H","NA"],{"NA": 1})
+    >>> calc_maf(["B","B","B","A","A","A","B","H","NA"],{"NA": 1},"H")
     0.375
+
+    >>> calc_maf(["B","B","B","A","A","A","B","H","H","H","NA"],{"NA": 1},"H")
+    0.3
+
+    >>> calc_maf(["B","B","B","A","A","A","B","H","H","H","H","NA"],{"NA": 1},"H")
+    0.36363636363636365
+
 
     """
     num = len(gs)
