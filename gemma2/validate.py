@@ -1,3 +1,4 @@
+# Validation for GEMMA2/Rqtl2 format
 
 import collections
 import logging

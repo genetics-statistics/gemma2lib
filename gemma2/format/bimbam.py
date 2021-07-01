@@ -1,5 +1,6 @@
 # GEMMA2 BIMBAM format support
 
+import copy
 import json
 import gzip
 import logging
@@ -102,14 +103,34 @@ def write_bimbam(control: dict):
             f.write("\n")
 
     genotype_translate = ctrl.genotypes
+    # This provides swapped values for major allele swap
+    genotype_translate_swap = copy.copy(ctrl.genotypes)
+    a = copy.copy(genotype_translate['A'])
+    b = copy.copy(genotype_translate['B'])
+    genotype_translate_swap['A'] = b
+    genotype_translate_swap['B'] = a
+
     genoA = ctrl.alleles[0]
     genoB = ctrl.alleles[1]
     with safe.geno_write_open("_bimbam.txt.gz") as f:
         genofn = f.name
         for num,marker,genotypes in iter_geno(ctrl.geno, sep=ctrl.sep, geno_sep=ctrl.geno_sep, header=False):
             f.write(marker.encode())
-            f.write(f",{genoA},{genoB},".encode())
-            values = [ float('NaN') if x=='-' else x for x in genotypes ]
-            f.write(",".join([str(genotype_translate[v]) if v!="-" else "NA" for v in genotypes]).encode())
+            # we need to write major alleles - GEMMA expects them to be 0.0
+            histogram = { 'A': 0, 'B': 0 }
+            for v in genotypes:
+                if v not in histogram:
+                    histogram[v] = 0
+                histogram[v] += 1
+            # Is A the real major allele?
+            if histogram['A'] > histogram['B']:
+                translate = genotype_translate
+                f.write(f",{genoB},{genoA},".encode()) # minor allele first
+            else:
+                translate = genotype_translate_swap
+                f.write(f",{genoA},{genoB},".encode()) # minor allele first
+
+            values = [str(translate[v]) if v!="-" else "NA" for v in genotypes]
+            f.write(",".join(values).encode())
             f.write("\n".encode())
     return genofn, phenofn

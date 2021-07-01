@@ -12,15 +12,14 @@ new functionalities:
 
 1. GEMMA1 pass through with 'gemma2 gemma1 opts...'
 2. GEMMA2 PLINK to GEMMA2/Rqtl2 format conversion
-   + [ ] What do to with (minor) allele values?
 3. GEMMA2 BIMBAM to GEMMA2/Rqtl2 conversion
    + [X] Convert GeneNetwork style BIMBAM (0,0.5,1)
          see https://github.com/rqtl/qtl2data/tree/master/BXD
    + [ ] Convert example mouse BIMBAM with 0.45 values, i.e., use real
      numbers
-   + [ ] What do to with (minor) allele values?
 4. GEMMA2 GEMMA2/Rqtl2 to BIMBAM conversion
-   + [ ] Convert to BIMBAM as an intermediate solution
+   + [X] Convert to BIMBAM as an intermediate solution
+   + [X] Handle encoding of major/minor allele on the fly
 5. Filtering
    + [X] Phenotypes (NA)
    + [X] other filters

@@ -136,6 +136,9 @@ If you want a quick preview use the ~--debug~ switch:
 }
 #+END_SRC
 
+Note that this format has no concept of minor/major allele encoding as
+is used in plink and BIMBAM formats.
+
 *** Convert (back) to BIMBIM
 
 GEMMA2 can write BIMBAM from GEMMA2 (R/qtl2) format using the ~export~
