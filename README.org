@@ -136,6 +136,14 @@ If you want a quick preview use the ~--debug~ switch:
 }
 #+END_SRC
 
+*** Convert (back) to BIMBIM
+
+GEMMA2 can write BIMBAM from GEMMA2 (R/qtl2) format using the ~export~
+function and a control file. E.g.
+
+#+begin_src sh
+gemma2 -vv --log INFO --debug ALL export --bimbam -c control
+#+end_src
 
 ** filter command
 

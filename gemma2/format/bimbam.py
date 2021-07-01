@@ -109,6 +109,7 @@ def write_bimbam(control: dict):
         for num,marker,genotypes in iter_geno(ctrl.geno, sep=ctrl.sep, geno_sep=ctrl.geno_sep, header=False):
             f.write(marker.encode())
             f.write(f",{genoA},{genoB},".encode())
-            f.write(",".join([str(genotype_translate[v]) for v in genotypes]).encode())
+            values = [ float('NaN') if x=='-' else x for x in genotypes ]
+            f.write(",".join([str(genotype_translate[v]) if v!="-" else "NA" for v in genotypes]).encode())
             f.write("\n".encode())
     return genofn, phenofn
