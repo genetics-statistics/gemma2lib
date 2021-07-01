@@ -1,6 +1,7 @@
 import logging
-from os.path import dirname, basename, isfile
+from os.path import dirname, basename, isfile, exists
 import sys
+import numpy as np
 
 from gemma2.utility.options import get_options_ns
 import gemma2.utility.safe as safe
@@ -47,14 +48,16 @@ def convert_plink(path: str, annofn: str):
     basefn = options.out_prefix
     memory_usage("plink pandas")
 
-    logging.info(f"Reading BIMBAM marker/SNP {annofn}")
-    with open(annofn,"r") as f:
-        with safe.gmap_write_open() as out:
-            outgmapfn = out.name
-            out.write(f"marker,chr,pos\n".encode())
-            for line in f:
-                marker,pos,chr,rest = line.strip().split("\t")
-                out.write(f"{marker}\t{chr}\t{pos}\n".encode())
+    outgmapfn = "NONE"
+    if annofn:
+        logging.info(f"Reading BIMBAM marker/SNP {annofn}")
+        with open(annofn,"r") as f:
+            with safe.gmap_write_open() as out:
+                outgmapfn = out.name
+                out.write(f"marker,chr,pos\n".encode())
+                for line in f:
+                    marker,pos,chr,rest = line.strip().split("\t")
+                    out.write(f"{marker}\t{chr}\t{pos}\n".encode())
 
     phenofn = basefn+"_pheno.tsv"
     p = fam.to_numpy()
@@ -74,7 +77,7 @@ def convert_plink(path: str, annofn: str):
 
     genofn = basefn+"_geno.txt.gz"
     logging.info(f"Writing GEMMA2 geno file {genofn}")
-    translate = { 1.0: "A", 2.0: "B", 0.0: "H" }
+    translate = { 1.0: "A", 2.0: "B", 0.0: "H", -9.0: "-" }
 
     import gzip
     with gzip.open(genofn, mode='wb', compresslevel=compression_level) as f:
@@ -84,15 +87,15 @@ def convert_plink(path: str, annofn: str):
         for j in range(markers):
             markername = bim.snp[j]
             f.write(f"\n{markername}\t".encode())
+            values = [ -9.0 if np.isnan(x) else x for x in m[j] ]
             if options.low_mem: # shaves 20%
                 for i in range(inds):
-                    f.write(f"{translate[m[j,i]]}".encode())
+                    f.write(f"{translate[values[i]]}".encode())
             else:
-                f.write("".join([ translate[item] for item in m[j] ]).encode())
+                f.write("".join([ translate[item] for item in values ]).encode())
         outgenofn = genofn
 
     transformation = { "type": "convert", "original": "plink", "format": "rqtl2" }
     write_control(None,inds,markers,phenos,outgenofn,outphenofn,outgmapfn,transformation)
-
 
     memory_usage("plink geno")

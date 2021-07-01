@@ -3,6 +3,13 @@
 We are excited to announce the first GEMMA2LIB test release with
 new functionalities:
 
+** TODO
+
+- [ ] Compute dominance
+- [ ] Count missing genotypes at marker
+
+** IN PROGRESS
+
 1. GEMMA1 pass through with 'gemma2 gemma1 opts...'
 2. GEMMA2 PLINK to GEMMA2/Rqtl2 format conversion
    + [ ] What do to with (minor) allele values?
@@ -12,6 +19,8 @@ new functionalities:
    + [ ] Convert example mouse BIMBAM with 0.45 values, i.e., use real
      numbers
    + [ ] What do to with (minor) allele values?
-4. Filtering
+4. GEMMA2 GEMMA2/Rqtl2 to BIMBAM conversion
+   + [ ] Convert to BIMBAM as an intermediate solution
+5. Filtering
    + [X] Phenotypes (NA)
    + [X] other filters
