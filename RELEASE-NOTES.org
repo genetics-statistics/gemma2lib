@@ -11,7 +11,9 @@ new functionalities:
 ** IN PROGRESS
 
 1. GEMMA1 pass through with 'gemma2 gemma1 opts...'
+   + [X] Pass through
 2. GEMMA2 PLINK to GEMMA2/Rqtl2 format conversion
+   + [X] Complete
 3. GEMMA2 BIMBAM to GEMMA2/Rqtl2 conversion
    + [X] Convert GeneNetwork style BIMBAM (0,0.5,1)
          see https://github.com/rqtl/qtl2data/tree/master/BXD
@@ -23,3 +25,5 @@ new functionalities:
 5. Filtering
    + [X] Phenotypes (NA)
    + [X] other filters
+6. Handle dominance
+   + [ ] see https://github.com/genetics-statistics/GEMMA/issues/34
