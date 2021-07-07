@@ -1,0 +1,11 @@
+name: gemma-dev
+channels:
+  - pyviz
+  - bokeh
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - pytest
+  - black
