@@ -34,7 +34,7 @@ On our http://genenetwork.org/ systems we run GEMMA every day.  As
 part of a Systems Genetics and Precision Medicine Project we are
 targetting GEMMA2/lib to be a faster and more flexible tool.
 
-NOTICE: this software is under active development. YMMV.
+IMPORTANT NOTICE: this software is no longer under active development. YMMV. Part of the functionality has moved to gemma-wrapper.
 
 For more information contact Pjotr Prins. A BLOG about the project can
 be found [[https://thebird.nl/blog/work/rotate.html][here]].
